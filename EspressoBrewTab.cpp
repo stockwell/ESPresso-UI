@@ -130,7 +130,7 @@ void EspressoBrewTab::setBoiler(BoilerController* boiler)
     lv_obj_add_event_cb(m_sw1, switch_event_cb, LV_EVENT_ALL, (void*)boiler);
 }
 
-void EspressoBrewTab::onBoilerTargetTempChanged(double temp)
+void EspressoBrewTab::onBoilerTargetTempChanged(float temp)
 {
     //auto round = [](int val) { val + 10/2; val -= val % 10; return val; };
     auto start = 0;//round(temp - 10);
@@ -147,7 +147,7 @@ void EspressoBrewTab::onBoilerTargetTempChanged(double temp)
     lv_label_set_text_fmt(label, "Target %d°c", (int)temp);
 }
 
-void EspressoBrewTab::onBoilerCurrentTempChanged(double temp)
+void EspressoBrewTab::onBoilerCurrentTempChanged(float temp)
 {
     lv_meter_set_indicator_end_value(m_meter1, m_indic[indic_temp], static_cast<int>(temp));
 

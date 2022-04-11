@@ -17,8 +17,8 @@ public:
     void setBoiler(BoilerController* boiler);
 
     // BoilerTemperatureDelegate i/f
-    void onBoilerCurrentTempChanged(double temp) override;
-    void onBoilerTargetTempChanged(double temp) override;
+    void onBoilerCurrentTempChanged(float temp) override;
+    void onBoilerTargetTempChanged(float temp) override;
 
 private:
     enum
@@ -35,6 +35,4 @@ private:
     lv_obj_t* m_sw1;
 
     BoilerController* m_boilerController;
-    
-
 };
