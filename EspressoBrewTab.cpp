@@ -18,7 +18,7 @@ static void switch_event_cb(lv_event_t* e)
     lv_label_set_text_fmt(label, "%s", steam ? "Steam" : "Brew");
 }
 
-static lv_obj_t * create_meter_box(lv_obj_t * parent, const char * title, const char * text1, const char * text2, const char * text3)
+static lv_obj_t* create_meter_box(lv_obj_t* parent, const char* text1, const char* text2)
 {
     lv_obj_t* cont = lv_obj_create(parent);
     lv_obj_set_size(cont, 210, 240);
@@ -55,7 +55,7 @@ static lv_obj_t * create_meter_box(lv_obj_t * parent, const char * title, const 
     return meter;
 }
 
-EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent)
+EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 {
     lv_obj_set_flex_flow(parent, LV_FLEX_FLOW_ROW_WRAP);
 
@@ -68,7 +68,7 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent)
     lv_style_set_border_width(&style_bullet, 0);
     lv_style_set_radius(&style_bullet, LV_RADIUS_CIRCLE);
 
-    m_meter1 = create_meter_box(parent, "Temperature", "Current", "Target", "");
+    m_meter1 = create_meter_box(parent, "Current", "Target");
     lv_obj_add_flag(lv_obj_get_parent(m_meter1), LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
     lv_obj_center(m_meter1);
 
@@ -121,10 +121,7 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent)
     auto swLabel1 = lv_label_create(m_sw1);
     lv_label_set_text(swLabel1, "Brew");
     lv_obj_center(swLabel1);
-}
 
-void EspressoBrewTab::setBoiler(BoilerController* boiler)
-{
     m_boilerController = boiler;
     m_boilerController->registerBoilerTemperatureDelegate(this);
 

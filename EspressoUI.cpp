@@ -67,8 +67,6 @@ void EspressoUI::init(BoilerController* boiler)
     lv_obj_t* t1 = lv_tabview_add_tab(tv, "Brew");
     lv_obj_t* t2 = lv_tabview_add_tab(tv, "Settings");
 
-    m_brewTab = std::make_unique<EspressoBrewTab>(t1);
+    m_brewTab = std::make_unique<EspressoBrewTab>(t1, boiler);
     m_settingsTab = std::make_unique<EspressoSettingsTab>(t2);
-
-    m_brewTab->setBoiler(boiler);
 }

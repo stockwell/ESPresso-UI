@@ -27,6 +27,6 @@ private:
         Large,
     };
 
-    std::unique_ptr<EspressoBrewTab>     m_brewTab;
-    std::unique_ptr<EspressoSettingsTab> m_settingsTab;
+    std::unique_ptr<EspressoBrewTab>        m_brewTab;
+    std::unique_ptr<EspressoSettingsTab>    m_settingsTab;
 };

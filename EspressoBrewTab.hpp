@@ -11,10 +11,8 @@
 class EspressoBrewTab : public BoilerTemperatureDelegate
 {
 public:
-    EspressoBrewTab(lv_obj_t* parent);
+    EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler);
     virtual ~EspressoBrewTab() = default;
-
-    void setBoiler(BoilerController* boiler);
 
     // BoilerTemperatureDelegate i/f
     void onBoilerCurrentTempChanged(float temp) override;
