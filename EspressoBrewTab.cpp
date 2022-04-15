@@ -20,12 +20,7 @@ static lv_obj_t * create_meter_box(lv_obj_t * parent, const char * title, const 
 {
     lv_obj_t * cont = lv_obj_create(parent);
     lv_obj_set_size(cont, 210, 240);
-    //lv_obj_set_flex_grow(cont, 1);
-#if 0
-    lv_obj_t * title_label = lv_label_create(cont);
-    lv_label_set_text(title_label, title);
-    lv_obj_add_style(title_label, &style_title, 0);
-    #endif
+    lv_obj_set_style_pad_row(cont, 0, 0);
 
     lv_obj_t * meter = lv_meter_create(cont);
     lv_obj_remove_style(meter, NULL, LV_PART_MAIN);
@@ -64,6 +59,7 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent)
 {
     lv_obj_set_flex_flow(m_parent, LV_FLEX_FLOW_ROW_WRAP);
 
+
     font_large = LV_FONT_DEFAULT;
 
     lv_style_init(&style_title);
@@ -90,9 +86,7 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent)
     lv_meter_set_scale_range(m_meter1, scale, 0, 200, 270, 135);
 
     m_indic[indic_temp] = lv_meter_add_needle_line(m_meter1, scale, 4, lv_palette_main(LV_PALETTE_RED), -10);
-
-    m_indic[indic_range_0] = lv_meter_add_arc(m_meter1, scale, 5, lv_palette_main(LV_PALETTE_GREEN), 0);
-    m_indic[indic_range_1] = lv_meter_add_scale_lines(m_meter1, scale, lv_palette_main(LV_PALETTE_GREEN), lv_palette_main(LV_PALETTE_GREEN), false, 0);
+    m_indic[indic_arc] = lv_meter_add_arc(m_meter1, scale, 6, lv_palette_main(LV_PALETTE_GREEN), -2);
 
     lv_meter_indicator_t* indic = lv_meter_add_arc(m_meter1, scale, 3, lv_palette_main(LV_PALETTE_BLUE), 0);
     lv_meter_set_indicator_start_value(m_meter1, indic, 0);
@@ -132,14 +126,14 @@ void EspressoBrewTab::setBoiler(BoilerController* boiler)
 
 void EspressoBrewTab::onBoilerTargetTempChanged(float temp)
 {
-    //auto round = [](int val) { val + 10/2; val -= val % 10; return val; };
-    auto start = 0;//round(temp - 10);
-    auto end = 0;//round(temp + 10);
+    auto round = [](int val) { val = val + 5/2; val -= val % 5; return val; };
+    auto start = round(temp - 5);
+    auto end = round(temp + 5);
 
-    for (auto i = 0; i < 2; i++)
+    for (auto i = 0; i < 1; i++)
     {
-        lv_meter_set_indicator_start_value(m_meter1, m_indic[indic_range_0 + i], start);
-        lv_meter_set_indicator_end_value(m_meter1,  m_indic[indic_range_0 + i], end);
+        lv_meter_set_indicator_start_value(m_meter1, m_indic[indic_arc + i], start);
+        lv_meter_set_indicator_end_value(m_meter1,  m_indic[indic_arc + i], end);
     }
 
     lv_obj_t * card = lv_obj_get_parent(m_meter1);

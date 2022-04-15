@@ -50,18 +50,12 @@ void EspressoUI::init(BoilerController* boiler)
         lv_obj_t * logo = lv_img_create(tab_btns);
         LV_IMG_DECLARE(espresso_logo);
         lv_img_set_src(logo, &espresso_logo);
-        lv_obj_align(logo, LV_ALIGN_LEFT_MID, -LV_HOR_RES / 2 + 25, 0);
-#if 0
-        lv_obj_t * label = lv_label_create(tab_btns);
-        lv_obj_add_style(label, &style_title, 0);
-        lv_label_set_text(label, "Espresso");
-        lv_obj_align_to(label, logo, LV_ALIGN_OUT_RIGHT_TOP, 10, 12);
-#endif
+        lv_obj_align(logo, LV_ALIGN_LEFT_MID, -LV_HOR_RES / 2 + 10, 0);
 
         lv_obj_t* label = lv_label_create(tab_btns);
         lv_label_set_text(label, "Gaggia Classic Pro");
         lv_obj_add_style(label, &style_text_muted, 0);
-        lv_obj_align_to(label, logo, LV_ALIGN_OUT_RIGHT_TOP, 10, 10);
+        lv_obj_align_to(label, logo, LV_ALIGN_OUT_RIGHT_TOP, 5, 20);
 
     }
 

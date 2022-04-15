@@ -24,8 +24,7 @@ private:
     enum
     {
         indic_temp,
-        indic_range_0,
-        indic_range_1,
+        indic_arc,
     };
 
     lv_obj_t*   m_parent;
