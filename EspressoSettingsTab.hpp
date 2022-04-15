@@ -6,6 +6,8 @@
 #include "lvgl/lvgl.h"
 #endif
 
+#include "SettingsManager.hpp"
+
 class EspressoSettingsTab 
 {
 public:
@@ -13,5 +15,5 @@ public:
     ~EspressoSettingsTab() = default;
 
 private:
-    lv_obj_t*   m_parent;
+    lv_obj_t*           m_parent;
 };

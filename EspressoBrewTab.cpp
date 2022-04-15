@@ -1,4 +1,5 @@
 #include "EspressoBrewTab.hpp"
+#include "SettingsManager.hpp"
 
 static lv_style_t style_title;
 static lv_style_t style_bullet;
@@ -11,8 +12,10 @@ static void switch_event_cb(lv_event_t* e)
     BoilerController* boiler = (BoilerController*)e->user_data;
     lv_obj_t* obj = lv_event_get_target(e);
 
+    auto& settings = SettingsManager::get();
+
     bool steam = lv_obj_has_state(obj, LV_STATE_CHECKED);
-    boiler->setBoilerTargetTemp(steam ? 130 : 93);
+    boiler->setBoilerTargetTemp(steam ? settings["SteamTemp"].getAs<int>() : settings["BrewTemp"].getAs<int>());
 
     lv_obj_t * label = lv_obj_get_child(obj, 0);
     lv_label_set_text_fmt(label, "%s", steam ? "Steam" : "Brew");
