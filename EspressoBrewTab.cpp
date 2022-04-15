@@ -9,16 +9,18 @@ static lv_chart_series_t * ser1;
 static void switch_event_cb(lv_event_t* e)
 {
     BoilerController* boiler = (BoilerController*)e->user_data;
-    lv_obj_t * obj = lv_event_get_target(e);
+    lv_obj_t* obj = lv_event_get_target(e);
 
     bool steam = lv_obj_has_state(obj, LV_STATE_CHECKED);
     boiler->setBoilerTargetTemp(steam ? 130 : 93);
 
+    lv_obj_t * label = lv_obj_get_child(obj, 0);
+    lv_label_set_text_fmt(label, "%s", steam ? "Steam" : "Brew");
 }
 
 static lv_obj_t * create_meter_box(lv_obj_t * parent, const char * title, const char * text1, const char * text2, const char * text3)
 {
-    lv_obj_t * cont = lv_obj_create(parent);
+    lv_obj_t* cont = lv_obj_create(parent);
     lv_obj_set_size(cont, 210, 240);
     lv_obj_set_style_pad_row(cont, 0, 0);
 
@@ -51,14 +53,11 @@ static lv_obj_t * create_meter_box(lv_obj_t * parent, const char * title, const 
     lv_obj_set_grid_cell(label2, LV_GRID_ALIGN_STRETCH, 3, 1, LV_GRID_ALIGN_START, 1, 1);
 
     return meter;
-
 }
 
 EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent)
-: m_parent(parent)
 {
-    lv_obj_set_flex_flow(m_parent, LV_FLEX_FLOW_ROW_WRAP);
-
+    lv_obj_set_flex_flow(parent, LV_FLEX_FLOW_ROW_WRAP);
 
     font_large = LV_FONT_DEFAULT;
 
@@ -113,7 +112,15 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent)
     lv_obj_set_size(m_meter1, 170, 170);
 
     lv_obj_t* panel2 = lv_obj_create(parent);
-    m_sw1 = lv_switch_create(panel2);
+
+    m_sw1 = lv_btn_create(panel2);
+    lv_obj_align(m_sw1, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_add_flag(m_sw1, LV_OBJ_FLAG_CHECKABLE);
+    lv_obj_set_height(m_sw1, LV_SIZE_CONTENT);
+
+    auto swLabel1 = lv_label_create(m_sw1);
+    lv_label_set_text(swLabel1, "Brew");
+    lv_obj_center(swLabel1);
 }
 
 void EspressoBrewTab::setBoiler(BoilerController* boiler)
@@ -148,6 +155,4 @@ void EspressoBrewTab::onBoilerCurrentTempChanged(float temp)
     lv_obj_t * card = lv_obj_get_parent(m_meter1);
     lv_obj_t * label = lv_obj_get_child(card, -3);
     lv_label_set_text_fmt(label, "Current %d°c", (int)temp);
-
-
 }

@@ -12,7 +12,7 @@ class EspressoBrewTab : public BoilerTemperatureDelegate
 {
 public:
     EspressoBrewTab(lv_obj_t* parent);
-    ~EspressoBrewTab() = default;
+    virtual ~EspressoBrewTab() = default;
 
     void setBoiler(BoilerController* boiler);
 
@@ -27,11 +27,10 @@ private:
         indic_arc,
     };
 
-    lv_obj_t*   m_parent;
-    lv_obj_t*   m_meter1;
-    lv_meter_indicator_t* m_indic[4];
+    lv_obj_t*               m_meter1;
+    lv_meter_indicator_t*   m_indic[2];
 
-    lv_obj_t* m_sw1;
+    lv_obj_t*               m_sw1;
 
-    BoilerController* m_boilerController;
+    BoilerController*       m_boilerController;
 };

@@ -10,11 +10,12 @@
 
 #include "BoilerController.hpp"
 #include "EspressoBrewTab.hpp"
+#include "EspressoSettingsTab.hpp"
 
 class EspressoUI
 {
 public:
-    EspressoUI()  = default;
+    EspressoUI() = default;
     ~EspressoUI() = default;
 
     void init(BoilerController* boiler);
@@ -25,14 +26,6 @@ private:
         Medium,
         Large,
     };
-
-    DisplaySize         disp_size;
-    const lv_font_t*    font_large;
-    const lv_font_t*    font_normal;
-    lv_style_t          style_text_muted;
-    lv_style_t          style_title;
-
-    lv_obj_t*           tv;
 
     std::unique_ptr<EspressoBrewTab>     m_brewTab;
 };
