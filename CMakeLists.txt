@@ -1,6 +1,6 @@
 
-file(GLOB_RECURSE SOURCES *.c *.cpp)
+file(GLOB SOURCES images/*.c *.cpp)
 
 idf_component_register(SRCS ${SOURCES}
-                       INCLUDE_DIRS .
+                       INCLUDE_DIRS . ./settings
                        REQUIRES main)
