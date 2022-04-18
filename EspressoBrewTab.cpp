@@ -36,7 +36,7 @@ namespace
             }
         }
 
-        lv_label_set_text_fmt(label, "%u", *time / 1000);
+        lv_label_set_text_fmt(label, "%u", static_cast<uint32_t>(*time) / 1000);
     }
 
     static void temp_switch_event_cb(lv_event_t* e)
