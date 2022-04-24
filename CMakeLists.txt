@@ -1,6 +1,9 @@
-
 file(GLOB SOURCES images/*.c *.cpp)
 
-idf_component_register(SRCS ${SOURCES}
-                       INCLUDE_DIRS . ./settings
-                       REQUIRES main)
+set(INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/settings
+)
+
+set(ESPresso-UI-INCLUDES ${INCLUDES} PARENT_SCOPE)
+set(ESPresso-UI-SOURCE ${SOURCES} PARENT_SCOPE)
