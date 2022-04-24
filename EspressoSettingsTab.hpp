@@ -6,7 +6,7 @@
 #include "lvgl/lvgl.h"
 #endif
 
-#include "settings/SettingsManager.hpp"
+#include "SettingsManager.hpp"
 
 class EspressoSettingsTab 
 {

@@ -36,7 +36,7 @@ namespace
             }
         }
 
-        lv_label_set_text_fmt(label, "%u", static_cast<uint32_t>(*time) / 1000);
+        lv_label_set_text_fmt(label, "%u", *time / 1000);
     }
 
     static void temp_switch_event_cb(lv_event_t* e)
@@ -119,7 +119,7 @@ namespace
     static lv_obj_t* create_meter_box(lv_obj_t* parent, const char* text1, const char* text2)
     {
         lv_obj_t* cont = lv_obj_create(parent);
-        lv_obj_set_size(cont, 215, 240);
+        lv_obj_set_size(cont, 370, 360);
         lv_obj_set_style_pad_row(cont, 0, 0);
 
         lv_obj_t * meter = lv_meter_create(cont);
@@ -208,11 +208,11 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
     lv_meter_set_indicator_end_value(m_meter1, indic, 200);
 
     lv_obj_update_layout(parent);
-    lv_obj_set_size(m_meter1, 170, 170);
+    lv_obj_set_size(m_meter1, 280, 280);
 
     // Panel 2 - Timer and brew/steam setting
     lv_obj_t* panel2 = lv_obj_create(parent);
-    lv_obj_set_size(panel2, 215, 240);
+    lv_obj_set_size(panel2, 370, 360);
     lv_obj_set_style_pad_row(panel2, 13, 0);
 
 #if 0
@@ -254,14 +254,14 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
     lv_obj_remove_style(arc, NULL, LV_PART_KNOB);   /*Be sure the knob is not displayed*/
     lv_obj_clear_flag(arc, LV_OBJ_FLAG_CLICKABLE);  /*To not allow adjusting by click*/
     lv_obj_center(arc);
-    lv_obj_set_size(arc, 155, 155);
+    lv_obj_set_size(arc, 260, 260);
 
     m_arcLabel = lv_label_create(arc);
     lv_label_set_text(m_arcLabel, "Heating");
     lv_obj_center(m_arcLabel);
     lv_obj_set_style_text_font(m_arcLabel, &lv_font_montserrat_28, 0);
 
-    static lv_coord_t grid_col_dsc[] = {30, 60, 60, LV_GRID_TEMPLATE_LAST};
+    static lv_coord_t grid_col_dsc[] = {40, 120, 120, LV_GRID_TEMPLATE_LAST};
     static lv_coord_t grid_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
     lv_obj_set_grid_dsc_array(panel2, grid_col_dsc, grid_row_dsc);
     lv_obj_set_grid_cell(arc, LV_GRID_ALIGN_END, 0, 3, LV_GRID_ALIGN_CENTER, 0, 1);

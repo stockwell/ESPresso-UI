@@ -16,6 +16,9 @@ void EspressoUI::init(BoilerController* boiler)
     switch (disp_size)
     {
         case DisplaySize::Large:
+            tab_h = 70;
+            font_large     =  &lv_font_montserrat_24;
+            font_normal    =  &lv_font_montserrat_16;
             break;
         
         case DisplaySize::Medium:
@@ -43,8 +46,6 @@ void EspressoUI::init(BoilerController* boiler)
 
     auto* tv = lv_tabview_create(lv_scr_act(), LV_DIR_TOP, tab_h);
 
-    if (disp_size == DisplaySize::Medium)
-    {
         lv_obj_t* tab_btns = lv_tabview_get_tab_btns(tv);
         lv_obj_set_style_pad_left(tab_btns, LV_HOR_RES / 2, 0);
 
@@ -55,14 +56,13 @@ void EspressoUI::init(BoilerController* boiler)
 
         lv_obj_t* label1 = lv_label_create(tab_btns);
         lv_label_set_text(label1, "ESPresso v0.1");
-        lv_obj_add_style(label1, &style_title, 0);
+        lv_obj_add_style(label1, &style_text_muted, 0);
         lv_obj_align_to(label1, logo, LV_ALIGN_OUT_RIGHT_TOP, 5, 5);
 
         lv_obj_t* label2 = lv_label_create(tab_btns);
         lv_label_set_text(label2, "Gaggia Classic Pro");
         lv_obj_add_style(label2, &style_text_muted, 0);
         lv_obj_align_to(label2, logo, LV_ALIGN_OUT_RIGHT_TOP, 5, 22);
-    }
 
     lv_obj_t* t1 = lv_tabview_add_tab(tv, "Brew");
     lv_obj_t* t2 = lv_tabview_add_tab(tv, "Settings");
