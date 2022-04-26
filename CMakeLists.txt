@@ -1,9 +1,14 @@
-file(GLOB SOURCES images/*.c *.cpp)
+set(SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/EspressoUI.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/EspressoBrewTab.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/EspressoSettingsTab.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/images/espresso_logo.c
+)
 
 set(INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/Settings
 )
 
-set(ESPresso-UI-INCLUDES ${INCLUDES} PARENT_SCOPE)
-set(ESPresso-UI-SOURCE ${SOURCES} PARENT_SCOPE)
+set(ESPRESSO-UI-INCLUDES ${INCLUDES} PARENT_SCOPE)
+set(ESPRESSO-UI-SOURCE ${SOURCES} PARENT_SCOPE)
