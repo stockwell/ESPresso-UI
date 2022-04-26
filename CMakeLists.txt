@@ -2,7 +2,7 @@ file(GLOB SOURCES images/*.c *.cpp)
 
 set(INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/settings
+        ${CMAKE_CURRENT_SOURCE_DIR}/Settings
 )
 
 set(ESPresso-UI-INCLUDES ${INCLUDES} PARENT_SCOPE)
