@@ -17,7 +17,7 @@ static void temperatureSliderCb(lv_event_t* e)
 
 	lv_label_set_text_fmt(label, "%d°c", val);
 
-	SettingsManager::get()[key] = val;
+	SettingsManager::get()[key] = static_cast<float>(val);
 }
 
 static std::pair<lv_obj_t*, lv_obj_t*> createTemperatureSlider(lv_obj_t* parent, const std::string& key)
@@ -31,7 +31,7 @@ static std::pair<lv_obj_t*, lv_obj_t*> createTemperatureSlider(lv_obj_t* parent,
 
 	auto label = lv_label_create(parent);
 	lv_obj_set_style_text_font(label, &lv_font_montserrat_16, LV_PART_MAIN);
-	lv_label_set_text_fmt(label, "%d°c", initial);
+	lv_label_set_text_fmt(label, "%d°c", static_cast<int>(initial));
 
 	lv_obj_add_event_cb(slider, temperatureSliderCb, LV_EVENT_VALUE_CHANGED, new std::pair<lv_obj_t*, std::string>(label, key));
 

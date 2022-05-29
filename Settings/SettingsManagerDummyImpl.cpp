@@ -4,7 +4,7 @@ void SettingsManager::save()
 {
     printf("Saving %zu keys..\n", m_settings.size());
 
-    for (const auto [key, value] : m_settings)
+    for (const auto& [key, value] : m_settings)
     {
         switch (value.get().index())
         {
