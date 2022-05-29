@@ -20,8 +20,8 @@ public:
     template<typename T>
     void operator = (const T& val)
     {
-        if (std::get<T>(m_value) == val)
-            return;
+       // if (std::get<T>(m_value) == val)
+       //     return;
 
         m_value = val;
 

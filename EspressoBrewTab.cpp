@@ -7,7 +7,7 @@ namespace
 	static lv_style_t style_bullet;
 
 	constexpr int kTimerPeriodMs = 50;
-	constexpr int kShotTimeSec = 5;
+	constexpr int kShotTimeSec = 30;
 	constexpr int kArcMax = (1000 / kTimerPeriodMs) * kShotTimeSec + 1;
 	constexpr int kArcAngleIncrement = 360 / (kArcMax);
 
@@ -38,21 +38,6 @@ namespace
 		}
 
 		lv_label_set_text_fmt(label, "%u", *time / 1000);
-	}
-
-	static void temp_switch_event_cb(lv_event_t* e)
-	{
-		auto* boiler = (BoilerController*)e->user_data;
-		lv_obj_t* obj = lv_event_get_target(e);
-
-		auto& settings = SettingsManager::get();
-
-		bool steam = lv_obj_has_state(obj, LV_STATE_CHECKED);
-		boiler->setBoilerTargetTemp(steam ? settings["SteamTemp"].getAs<float>()
-										  : settings["BrewTemp"].getAs<float>());
-
-		lv_obj_t* label = lv_obj_get_child(obj, 0);
-		lv_label_set_text_fmt(label, "%s", steam ? "Steam" : "Brew");
 	}
 
 	struct ResetSwitchData
@@ -339,7 +324,7 @@ void EspressoBrewTab::onBoilerCurrentTempChanged(float temp)
 
 	lv_obj_t* card = lv_obj_get_parent(m_meter1);
 	lv_obj_t* label = lv_obj_get_child(card, -3);
-	lv_label_set_text_fmt(label, "Current %d°c", (int)temp);
+	lv_label_set_text_fmt(label, "Current %.01f°c", temp);
 
 	// TODO: BoilerController should handle this, and notify on state change
 	switch (m_boilerState)

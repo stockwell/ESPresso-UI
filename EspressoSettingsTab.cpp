@@ -23,11 +23,11 @@ static void temperatureSliderCb(lv_event_t* e)
 static std::pair<lv_obj_t*, lv_obj_t*> createTemperatureSlider(lv_obj_t* parent, const std::string& key)
 {
 	auto slider = lv_slider_create(parent);
-	auto initial = SettingsManager::get()[key].getAs<int>();
+	auto initial = SettingsManager::get()[key].getAs<float>();
 
 	lv_slider_set_range(slider, 50, 150);
 	lv_slider_set_value(slider, initial, LV_ANIM_OFF);
-	lv_obj_set_size(slider, 600, 20);
+	lv_obj_set_size(slider, 580, 20);
 
 	auto label = lv_label_create(parent);
 	lv_obj_set_style_text_font(label, &lv_font_montserrat_16, LV_PART_MAIN);
