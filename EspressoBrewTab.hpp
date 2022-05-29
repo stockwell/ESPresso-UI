@@ -14,6 +14,7 @@ public:
 	// BoilerTemperatureDelegate i/f
 	void onBoilerCurrentTempChanged(float temp) override;
 	void onBoilerTargetTempChanged(float temp) override;
+	void onBoilerStateChanged(BoilerState state) override;
 
 private:
 	enum
@@ -34,4 +35,5 @@ private:
 	lv_timer_t* m_timer;
 
 	BoilerController* m_boilerController;
+	BoilerState m_lastState = BoilerState::Heating;
 };

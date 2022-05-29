@@ -325,21 +325,35 @@ void EspressoBrewTab::onBoilerCurrentTempChanged(float temp)
 	lv_obj_t* card = lv_obj_get_parent(m_meter1);
 	lv_obj_t* label = lv_obj_get_child(card, -3);
 	lv_label_set_text_fmt(label, "Current %.01f°c", temp);
+}
 
-	// TODO: BoilerController should handle this, and notify on state change
-	switch (m_boilerState)
+void EspressoBrewTab::onBoilerStateChanged(BoilerState state)
+{
+	switch (state)
 	{
-	case BoilerController::BoilerState::Heating:
-		if (temp >= m_targetTemp)
+	case BoilerState::Heating:
+		lv_label_set_text(m_arcLabel, "Heating");
+		lv_obj_add_state(m_switch2, LV_STATE_DISABLED);
+		break;
+
+	case BoilerState::Ready:
+
+		if (m_lastState != BoilerState::Brewing)
 		{
-			m_boilerState = BoilerController::BoilerState::Ready;
 			lv_label_set_text(m_arcLabel, "Ready");
 			lv_obj_clear_state(m_switch2, LV_STATE_DISABLED);
 		}
+		else
+		{
+			lv_obj_clear_state(m_switch2, LV_STATE_CHECKED);
+		}
 		break;
 
-	case BoilerController::BoilerState::Ready:
+	case BoilerState::Brewing:
+		lv_obj_add_state(m_switch2, LV_STATE_CHECKED);
 		break;
+
 	}
 
+	m_lastState = state;
 }
