@@ -51,7 +51,7 @@ void EspressoUI::init(BoilerController* boiler)
 	lv_obj_align(logo, LV_ALIGN_LEFT_MID, -LV_HOR_RES / 2 + 10, 0);
 
 	lv_obj_t* label1 = lv_label_create(tab_btns);
-	lv_label_set_text(label1, "ESPresso v0.1");
+	lv_label_set_text(label1, "ESPresso v0.01");
 	lv_obj_align_to(label1, logo, LV_ALIGN_OUT_RIGHT_TOP, 5, 0);
 	lv_obj_set_style_text_font(label1, font_large, 0);
 
