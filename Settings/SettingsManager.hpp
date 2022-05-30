@@ -7,74 +7,99 @@
 
 struct SettingDelegate
 {
-    virtual void onChanged(int) {};
-    virtual void onChanged(float) {};
-    virtual void onChanged(std::string) {};
+	virtual void onChanged(const std::string& key, const int val) { };
+	virtual void onChanged(const std::string& key, const float val) { };
+	virtual void onChanged(const std::string& key, const std::string& val) { };
 };
 
 class Setting
 {
 public:
-    using SettingValue = std::variant<int, float, std::string>;
+	using SettingValue = std::variant<int, float, std::string>;
 
-    template<typename T>
-    void operator = (const T& val)
-    {
-       // if (std::get<T>(m_value) == val)
-       //     return;
+	template<typename T>
+	Setting& operator=(const T& val)
+	{
+		try
+		{
+			if (std::get<T>(m_value) == val)
+				return *this;
+		}
+		catch (std::bad_variant_access& e)
+		{
+			// This will always occur when setting the initial value on a non-int setting. I'm too
+			// lazy to fix this.
+		}
 
-        m_value = val;
+		m_value = val;
 
-        for (auto delegate : m_delegates)
-            delegate->onChanged(val);
-    }
+		for (auto delegate: m_delegates)
+			delegate->onChanged(m_key, val);
 
-    template<typename T>
-    T getAs() const { return std::get<T>(m_value); }
+		return *this;
+	}
 
-    SettingValue get() const { return m_value; }
+	template<typename T>
+	T getAs() const
+	{
+		return std::get<T>(m_value);
+	}
 
-    void registerDelegate(SettingDelegate* delegate)
-    {
-        m_delegates.emplace(delegate);
-    }
+	SettingValue get() const
+	{
+		return m_value;
+	}
 
-    void deregisterDelegate(SettingDelegate* delegate)
-    {
-        m_delegates.erase(delegate);
-    }
+	void registerDelegate(SettingDelegate* delegate)
+	{
+		m_delegates.emplace(delegate);
+	}
+
+	void deregisterDelegate(SettingDelegate* delegate)
+	{
+		m_delegates.erase(delegate);
+	}
+
+	void setKey(const std::string& key)
+	{
+		m_key = key;
+	}
 
 private:
-    SettingValue                m_value;
-    std::set<SettingDelegate*>  m_delegates;
+	SettingValue m_value;
+	std::string m_key;
+	std::set<SettingDelegate*> m_delegates;
 };
 
 class SettingsManager
 {
 public:
-    SettingsManager(const SettingsManager &) = delete;
-    SettingsManager& operator=(const SettingsManager &) = delete;
+	SettingsManager(const SettingsManager&) = delete;
+	SettingsManager& operator=(const SettingsManager&) = delete;
 
-    static SettingsManager& get()
-    {
-        static SettingsManager manager;
-        return manager;
-    }
+	static SettingsManager& get()
+	{
+		static SettingsManager manager;
+		return manager;
+	}
 
-    Setting& operator[](const std::string& key)
-    {
-        if (auto it = m_settings.find(key); it != m_settings.end())
-            return it->second;
-        
-        return m_settings[key];
-    }
+	Setting& operator[](const std::string& key)
+	{
+		if (auto it = m_settings.find(key); it != m_settings.end())
+			return it->second;
 
-    void save();
-    void load();
+		m_settings[key].setKey(key);
+
+		return m_settings[key];
+	}
+
+	// Must be implemented by SettingsManagerImpl
+	void save();
+	void load();
 
 protected:
-    SettingsManager() = default;
+	SettingsManager() = default;
 
 private:
-    std::unordered_map<std::string, Setting> m_settings;
+	std::unordered_map<std::string, Setting> m_settings;
 };
