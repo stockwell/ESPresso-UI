@@ -20,13 +20,13 @@ static void temperatureSliderCb(lv_event_t* e)
 	SettingsManager::get()[key] = static_cast<float>(val);
 }
 
-static std::pair<lv_obj_t*, lv_obj_t*> createTemperatureSlider(lv_obj_t* parent, const std::string& key)
+static std::pair<lv_obj_t*, lv_obj_t*> createTemperatureSlider(lv_obj_t* parent, const std::string& key, const std::pair<int, int>& range)
 {
 	auto slider = lv_slider_create(parent);
 	auto initial = SettingsManager::get()[key].getAs<float>();
 
-	lv_slider_set_range(slider, 50, 150);
-	lv_slider_set_value(slider, initial, LV_ANIM_OFF);
+	lv_slider_set_range(slider, range.first, range.second);
+	lv_slider_set_value(slider, static_cast<int>(initial), LV_ANIM_OFF);
 	lv_obj_set_size(slider, 580, 20);
 
 	auto label = lv_label_create(parent);
@@ -48,8 +48,8 @@ EspressoSettingsTab::EspressoSettingsTab(lv_obj_t* parent)
 
 	auto& settings = SettingsManager::get();
 
-	auto [slider1, sliderlabel] = createTemperatureSlider(cont, "BrewTemp");
-	auto [slider2, sliderlabel2] = createTemperatureSlider(cont, "SteamTemp");
+	auto [slider1, sliderlabel] = createTemperatureSlider(cont, "BrewTemp", {85, 100});
+	auto [slider2, sliderlabel2] = createTemperatureSlider(cont, "SteamTemp", {120, 150});
 
 	static lv_coord_t grid_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 	static lv_coord_t grid_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
