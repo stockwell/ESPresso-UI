@@ -28,6 +28,7 @@ private:
 
 	lv_obj_t* m_meter1;
 	lv_obj_t* m_switch2;
+	lv_obj_t* m_switch3;
 	lv_obj_t* m_arcLabel;
 
 	lv_meter_indicator_t* m_indic[2];

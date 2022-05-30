@@ -218,17 +218,6 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 	lv_obj_set_size(panel2, 370, 360);
 	lv_obj_set_style_pad_row(panel2, 13, 0);
 
-#if 0
-	auto switch1 = lv_btn_create(panel2);
-	lv_obj_align(switch1, LV_ALIGN_CENTER, 0, 0);
-	lv_obj_add_flag(switch1, LV_OBJ_FLAG_CHECKABLE);
-	lv_obj_set_height(switch1, LV_SIZE_CONTENT);
-
-	auto swLabel1 = lv_label_create(switch1);
-	lv_label_set_text(swLabel1, "Brew");
-	lv_obj_center(swLabel1);
-#endif
-
 	m_switch2 = lv_btn_create(panel2);
 	lv_obj_align(m_switch2, LV_ALIGN_CENTER, 0, 0);
 	lv_obj_add_state(m_switch2, LV_STATE_DISABLED);
@@ -240,12 +229,12 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 	lv_obj_set_style_text_font(swLabel2, &lv_font_montserrat_20, 0);
 	lv_obj_center(swLabel2);
 
-	auto switch3 = lv_btn_create(panel2);
-	lv_obj_align(switch3, LV_ALIGN_CENTER, 0, 0);
-	lv_obj_add_state(switch3, LV_STATE_DISABLED);
-	lv_obj_set_height(switch3, LV_SIZE_CONTENT);
+	m_switch3 = lv_btn_create(panel2);
+	lv_obj_align(m_switch3, LV_ALIGN_CENTER, 0, 0);
+	lv_obj_add_state(m_switch3, LV_STATE_DISABLED);
+	lv_obj_set_height(m_switch3, LV_SIZE_CONTENT);
 
-	auto swLabel3 = lv_label_create(switch3);
+	auto swLabel3 = lv_label_create(m_switch3);
 	lv_label_set_text(swLabel3, "Reset");
 	lv_obj_set_style_text_font(swLabel3, &lv_font_montserrat_20, 0);
 	lv_obj_center(swLabel3);
@@ -271,10 +260,9 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 	lv_obj_set_grid_dsc_array(panel2, grid_col_dsc, grid_row_dsc);
 	lv_obj_set_grid_cell(arc, LV_GRID_ALIGN_END, 0, 3, LV_GRID_ALIGN_CENTER, 0, 1);
 	lv_obj_set_grid_cell(m_switch2, LV_GRID_ALIGN_CENTER, 0, 2, LV_GRID_ALIGN_CENTER, 1, 1);
-	lv_obj_set_grid_cell(switch3, LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_CENTER, 1, 1);
+	lv_obj_set_grid_cell(m_switch3, LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_CENTER, 1, 1);
 
-	auto* timerData =
-		new std::tuple<lv_obj_t*, lv_obj_t*, uint64_t*>(switch3, arc, &m_stopwatchTime);
+	auto* timerData = new std::tuple<lv_obj_t*, lv_obj_t*, uint64_t*>(m_switch3, arc, &m_stopwatchTime);
 	m_timer = lv_timer_create(timer_cb, kTimerPeriodMs, timerData);
 	lv_timer_pause(m_timer);
 
@@ -286,9 +274,9 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 		&m_stopwatchTime,
 	};
 
-	lv_obj_add_event_cb(switch3, reset_switch_event_cb, LV_EVENT_ALL, resetSwitchData);
+	lv_obj_add_event_cb(m_switch3, reset_switch_event_cb, LV_EVENT_ALL, resetSwitchData);
 
-	auto* timerSwitchData = new std::pair<lv_obj_t*, lv_timer_t*>(switch3, m_timer);
+	auto* timerSwitchData = new std::pair<lv_obj_t*, lv_timer_t*>(m_switch3, m_timer);
 	lv_obj_add_event_cb(m_switch2, timer_switch_event_cb, LV_EVENT_ALL, timerSwitchData);
 
 	m_boilerController->registerBoilerTemperatureDelegate(this);
@@ -351,6 +339,7 @@ void EspressoBrewTab::onBoilerStateChanged(BoilerState state)
 
 	case BoilerState::Brewing:
 		lv_obj_add_state(m_switch2, LV_STATE_CHECKED);
+		lv_obj_clear_state(m_switch3, LV_STATE_DISABLED);
 		break;
 
 	}
