@@ -106,11 +106,11 @@ namespace
 		lv_obj_set_style_pad_row(cont, 0, 0);
 
 		lv_obj_t* meter = lv_meter_create(cont);
-		lv_obj_remove_style(meter, NULL, LV_PART_MAIN);
+		lv_obj_remove_style(meter, nullptr, LV_PART_MAIN);
 
 		lv_obj_t* bullet1 = lv_obj_create(cont);
 		lv_obj_set_size(bullet1, 13, 13);
-		lv_obj_remove_style(bullet1, NULL, LV_PART_SCROLLBAR);
+		lv_obj_remove_style(bullet1, nullptr, LV_PART_SCROLLBAR);
 		lv_obj_add_style(bullet1, &style_bullet, 0);
 		lv_obj_set_style_bg_color(bullet1, lv_palette_main(LV_PALETTE_RED), 0);
 		lv_obj_t* label1 = lv_label_create(cont);
