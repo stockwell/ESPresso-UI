@@ -17,7 +17,9 @@ static void temperatureSliderCb(lv_event_t* e)
 
 	lv_label_set_text_fmt(label, "%d°c", val);
 
-	SettingsManager::get()[key] = static_cast<float>(val);
+	auto& settings = SettingsManager::get();
+	settings[key] = static_cast<float>(val);
+	settings.save();
 }
 
 static std::pair<lv_obj_t*, lv_obj_t*> createTemperatureSlider(lv_obj_t* parent, const std::string& key, const std::pair<int, int>& range)

@@ -2,6 +2,7 @@ set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/EspressoUI.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/EspressoBrewTab.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/EspressoSettingsTab.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Settings/SettingsManagerDefaults.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/images/espresso_logo.c
 )
 

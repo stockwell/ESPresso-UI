@@ -7,7 +7,8 @@
 
 struct SettingDelegate
 {
-	virtual void onChanged(const std::string& key, const int val) { };
+	virtual void onChanged(const std::string& key, const bool val) { };
+	virtual void onChanged(const std::string& key, const int64_t val) { };
 	virtual void onChanged(const std::string& key, const float val) { };
 	virtual void onChanged(const std::string& key, const std::string& val) { };
 };
@@ -15,7 +16,7 @@ struct SettingDelegate
 class Setting
 {
 public:
-	using SettingValue = std::variant<int, float, std::string>;
+	using SettingValue = std::variant<bool, int64_t, float, std::string>;
 
 	template<typename T>
 	Setting& operator=(const T& val)
@@ -92,6 +93,8 @@ public:
 
 		return m_settings[key];
 	}
+
+	void loadDefaults();
 
 	// Must be implemented by SettingsManagerImpl
 	void save();
