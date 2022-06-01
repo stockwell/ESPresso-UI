@@ -8,7 +8,7 @@
 
 namespace
 {
-	std::string_view kSettingsPath = "Settings.json";
+	const auto kSettingsPath = "Settings.json";
 }
 
 void SettingsManager::save()
