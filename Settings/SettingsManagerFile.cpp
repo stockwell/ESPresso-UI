@@ -63,8 +63,10 @@ void SettingsManager::load()
 	{
 		settingsFile >> settingsJSON;
 
-		for (auto& [key, value]: settingsJSON.items())
+		for (const auto& [key, value]: settingsJSON.items())
 		{
+			m_settings[key].setKey(key);
+
 			switch (value["Type"].get<int>())
 			{
 			case 0:

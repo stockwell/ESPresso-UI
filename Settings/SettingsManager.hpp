@@ -89,8 +89,6 @@ public:
 		if (auto it = m_settings.find(key); it != m_settings.end())
 			return it->second;
 
-		m_settings[key].setKey(key);
-
 		return m_settings[key];
 	}
 
