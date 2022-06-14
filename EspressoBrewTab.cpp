@@ -9,7 +9,7 @@ namespace
 	constexpr int kTimerPeriodMs = 50;
 	constexpr int kShotTimeSec = 30;
 	constexpr int kArcMax = (1000 / kTimerPeriodMs) * kShotTimeSec + 1;
-	constexpr int kArcAngleIncrement = 360 / (kArcMax);
+	constexpr int kArcAngleIncrement = std::max(1, 360 / (kArcMax));
 
 	static void timer_cb(lv_timer_t* t)
 	{
@@ -99,42 +99,15 @@ namespace
 		}
 	}
 
-	static lv_obj_t* create_meter_box(lv_obj_t* parent, const char* text1, const char* text2)
+	static lv_obj_t* create_meter_box(lv_obj_t* parent, const char* text1)
 	{
-		lv_obj_t* cont = lv_obj_create(parent);
-		lv_obj_set_size(cont, 370, 360);
-		lv_obj_set_style_pad_row(cont, 0, 0);
-
-		lv_obj_t* meter = lv_meter_create(cont);
+		lv_obj_t* meter = lv_meter_create(parent);
 		lv_obj_remove_style(meter, nullptr, LV_PART_MAIN);
 
-		lv_obj_t* bullet1 = lv_obj_create(cont);
-		lv_obj_set_size(bullet1, 13, 13);
-		lv_obj_remove_style(bullet1, nullptr, LV_PART_SCROLLBAR);
-		lv_obj_add_style(bullet1, &style_bullet, 0);
-		lv_obj_set_style_bg_color(bullet1, lv_palette_main(LV_PALETTE_RED), 0);
-		lv_obj_t* label1 = lv_label_create(cont);
+		lv_obj_t* label1 = lv_label_create(meter);
 		lv_label_set_text(label1, text1);
-
-		lv_obj_t* bullet2 = lv_obj_create(cont);
-		lv_obj_set_size(bullet2, 13, 13);
-		lv_obj_remove_style(bullet2, nullptr, LV_PART_SCROLLBAR);
-		lv_obj_add_style(bullet2, &style_bullet, 0);
-		lv_obj_set_style_bg_color(bullet2, lv_palette_main(LV_PALETTE_BLUE), 0);
-		lv_obj_t* label2 = lv_label_create(cont);
-		lv_label_set_text(label2, text2);
-
-		static lv_coord_t grid_col_dsc[] =
-			{LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT,
-			 LV_GRID_TEMPLATE_LAST};
-		static lv_coord_t grid_row_dsc[] =
-			{LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-		lv_obj_set_grid_dsc_array(cont, grid_col_dsc, grid_row_dsc);
-		lv_obj_set_grid_cell(meter, LV_GRID_ALIGN_START, 0, 4, LV_GRID_ALIGN_START, 0, 1);
-		lv_obj_set_grid_cell(bullet1, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 1, 1);
-		lv_obj_set_grid_cell(bullet2, LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_START, 1, 1);
-		lv_obj_set_grid_cell(label1, LV_GRID_ALIGN_STRETCH, 1, 1, LV_GRID_ALIGN_START, 1, 1);
-		lv_obj_set_grid_cell(label2, LV_GRID_ALIGN_STRETCH, 3, 1, LV_GRID_ALIGN_START, 1, 1);
+		lv_obj_set_style_text_font(label1, &lv_font_montserrat_16, 0);
+		lv_obj_set_pos(label1, 45, 115);
 
 		return meter;
 	}
@@ -151,31 +124,35 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 	lv_style_init(&style_bullet);
 	lv_style_set_border_width(&style_bullet, 0);
 	lv_style_set_radius(&style_bullet, LV_RADIUS_CIRCLE);
+	lv_obj_set_style_pad_row(parent, 10, 0);
 
 	// Panel 1 -- Temperature Gauge
-	m_meter1 = create_meter_box(parent, "Current", "Target");
-	lv_obj_add_flag(lv_obj_get_parent(m_meter1), LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
-	lv_obj_center(m_meter1);
+	lv_obj_t* cont = lv_obj_create(parent);
+	lv_obj_set_size(cont, 370, 180);
+	lv_obj_set_style_pad_row(cont, 0, 0);
+	lv_obj_set_style_pad_column(cont, 20, 0);
+
+	m_meter1 = create_meter_box(cont, "Current");
 
 	/*Add a special circle to the needle's pivot*/
-	lv_obj_set_style_size(m_meter1, 18, LV_PART_INDICATOR);
+	lv_obj_set_style_size(m_meter1, 4, LV_PART_INDICATOR);
 	lv_obj_set_style_radius(m_meter1, LV_RADIUS_CIRCLE, LV_PART_INDICATOR);
 	lv_obj_set_style_bg_opa(m_meter1, LV_OPA_COVER, LV_PART_INDICATOR);
 	lv_obj_set_style_bg_color(m_meter1, lv_palette_darken(LV_PALETTE_GREY, 4), LV_PART_INDICATOR);
+	lv_obj_set_style_text_font(m_meter1, &lv_font_montserrat_12, 0);
 
 	lv_meter_scale_t* scale = lv_meter_add_scale(m_meter1);
-	lv_meter_set_scale_ticks(m_meter1, scale, 41, 3, 20, lv_palette_main(LV_PALETTE_GREY));
-	lv_meter_set_scale_major_ticks(m_meter1, scale, 8, 5, 22, lv_color_black(), 10);
+	lv_meter_set_scale_ticks(m_meter1, scale, 41, 1, 8, lv_palette_main(LV_PALETTE_GREY));
+	lv_meter_set_scale_major_ticks(m_meter1, scale, 8, 2, 8, lv_color_black(), 10);
 
 	lv_meter_set_scale_range(m_meter1, scale, 0, 200, 270, 135);
 
 	m_indic[indic_temp] =
-		lv_meter_add_needle_line(m_meter1, scale, 4, lv_palette_main(LV_PALETTE_RED), -10);
+		lv_meter_add_needle_line(m_meter1, scale, 2, lv_palette_main(LV_PALETTE_RED), -10);
 	m_indic[indic_arc] =
-		lv_meter_add_arc(m_meter1, scale, 6, lv_palette_main(LV_PALETTE_GREEN), 0);
+		lv_meter_add_arc(m_meter1, scale, 3, lv_palette_main(LV_PALETTE_GREEN), 0);
 
-	lv_meter_indicator_t
-		* indic = lv_meter_add_arc(m_meter1, scale, 3, lv_palette_main(LV_PALETTE_BLUE), 0);
+	lv_meter_indicator_t* indic = lv_meter_add_arc(m_meter1, scale, 2, lv_palette_main(LV_PALETTE_BLUE), 0);
 	lv_meter_set_indicator_start_value(m_meter1, indic, 0);
 	lv_meter_set_indicator_end_value(m_meter1, indic, 40);
 
@@ -184,11 +161,11 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 		lv_palette_main(LV_PALETTE_BLUE),
 		lv_palette_main(LV_PALETTE_BLUE),
 		false,
-		1);
+		0);
 	lv_meter_set_indicator_start_value(m_meter1, indic, 0);
 	lv_meter_set_indicator_end_value(m_meter1, indic, 40);
 
-	indic = lv_meter_add_arc(m_meter1, scale, 3, lv_palette_main(LV_PALETTE_RED), 0);
+	indic = lv_meter_add_arc(m_meter1, scale, 2, lv_palette_main(LV_PALETTE_RED), 0);
 	lv_meter_set_indicator_start_value(m_meter1, indic, 160);
 	lv_meter_set_indicator_end_value(m_meter1, indic, 200);
 
@@ -210,8 +187,43 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 	lv_meter_set_indicator_start_value(m_meter1, indic, 160);
 	lv_meter_set_indicator_end_value(m_meter1, indic, 200);
 
-	lv_obj_update_layout(parent);
-	lv_obj_set_size(m_meter1, 270, 270);
+	m_meter2 = create_meter_box(cont, "Current");
+
+	/*Add a special circle to the needle's pivot*/
+	lv_obj_set_style_size(m_meter2, 4, LV_PART_INDICATOR);
+	lv_obj_set_style_radius(m_meter2, LV_RADIUS_CIRCLE, LV_PART_INDICATOR);
+	lv_obj_set_style_bg_opa(m_meter2, LV_OPA_COVER, LV_PART_INDICATOR);
+	lv_obj_set_style_bg_color(m_meter2, lv_palette_darken(LV_PALETTE_GREY, 4), LV_PART_INDICATOR);
+	lv_obj_set_style_text_font(m_meter2, &lv_font_montserrat_12, 0);
+
+	lv_meter_scale_t* scale2 = lv_meter_add_scale(m_meter2);
+	lv_meter_set_scale_ticks(m_meter2, scale2, 41, 1, 8, lv_palette_main(LV_PALETTE_GREY));
+	lv_meter_set_scale_major_ticks(m_meter2, scale2, 8, 2, 8, lv_color_black(), 10);
+	lv_meter_set_scale_range(m_meter2, scale2, 0, 20, 270, 135);
+
+	lv_meter_scale_t* scale3 = lv_meter_add_scale(m_meter2);
+	lv_meter_set_scale_ticks(m_meter2, scale3, 41, 1, 8, lv_palette_main(LV_PALETTE_GREY));
+	lv_meter_set_scale_range(m_meter2, scale3, 0, 400, 270, 135);
+
+	m_indic[indic_pressure] =
+		lv_meter_add_needle_line(m_meter2, scale3, 2, lv_palette_main(LV_PALETTE_RED), -10);
+
+	static lv_coord_t outer_grid_col_dsc[] =
+		{LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+	static lv_coord_t outer_grid_row_dsc[] =
+		{LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+	lv_obj_set_grid_dsc_array(cont, outer_grid_col_dsc, outer_grid_row_dsc);
+	lv_obj_set_grid_cell(m_meter1, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 0, 1);
+	lv_obj_set_grid_cell(m_meter2, LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_START, 0, 1);
+
+	// Chart
+	auto chart = lv_chart_create(parent);
+	lv_obj_set_size(chart, 370, 170);
+	lv_obj_align(chart, LV_ALIGN_CENTER, 0, 0);
+	lv_chart_set_range(chart, LV_CHART_AXIS_PRIMARY_Y, -1000, 1000);
+
+	lv_chart_series_t* m_ser1 = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
+	lv_chart_series_t* m_ser2 = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
 
 	// Panel 2 - Timer and brew/steam setting
 	lv_obj_t* panel2 = lv_obj_create(parent);
@@ -279,6 +291,16 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 	auto* timerSwitchData = new std::pair<lv_obj_t*, lv_timer_t*>(m_switch3, m_timer);
 	lv_obj_add_event_cb(m_switch2, timer_switch_event_cb, LV_EVENT_ALL, timerSwitchData);
 
+	static lv_coord_t cont_grid_col_dsc[] =
+		{LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+	static lv_coord_t cont_grid_row_dsc[] =
+		{LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+
+	lv_obj_set_grid_dsc_array(parent, cont_grid_col_dsc, cont_grid_row_dsc);
+	lv_obj_set_grid_cell(cont, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 0, 1);
+	lv_obj_set_grid_cell(chart, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 1, 1);
+	lv_obj_set_grid_cell(panel2, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 0, 2);
+
 	m_boilerController->registerBoilerTemperatureDelegate(this);
 }
 
@@ -295,24 +317,24 @@ void EspressoBrewTab::onBoilerTargetTempChanged(float temp)
 	auto start = round(temp - 5);
 	auto end = round(temp + 5);
 
-	for (auto i = 0; i < 1; i++)
-	{
-		lv_meter_set_indicator_start_value(m_meter1, m_indic[indic_arc + i], start);
-		lv_meter_set_indicator_end_value(m_meter1, m_indic[indic_arc + i], end);
-	}
-
-	lv_obj_t* card = lv_obj_get_parent(m_meter1);
-	lv_obj_t* label = lv_obj_get_child(card, -1);
-	lv_label_set_text_fmt(label, "Target %d°c", (int)temp);
+	lv_meter_set_indicator_start_value(m_meter1, m_indic[indic_arc], start);
+	lv_meter_set_indicator_end_value(m_meter1, m_indic[indic_arc], end);
 }
 
 void EspressoBrewTab::onBoilerCurrentTempChanged(float temp)
 {
 	lv_meter_set_indicator_end_value(m_meter1, m_indic[indic_temp], static_cast<int>(temp));
 
-	lv_obj_t* card = lv_obj_get_parent(m_meter1);
-	lv_obj_t* label = lv_obj_get_child(card, -3);
-	lv_label_set_text_fmt(label, "Current %.01f°c", temp);
+	lv_obj_t* label = lv_obj_get_child(m_meter1, -1);
+	lv_label_set_text_fmt(label, "%.01f°c", temp);
+}
+
+void EspressoBrewTab::onBoilerPressureChanged(float pressure)
+{
+	lv_meter_set_indicator_end_value(m_meter2, m_indic[indic_pressure], static_cast<int>(pressure*20));
+
+	lv_obj_t* label = lv_obj_get_child(m_meter2, -1);
+	lv_label_set_text_fmt(label, "%.01f bar", pressure);
 }
 
 void EspressoBrewTab::onBoilerStateChanged(BoilerState state)
