@@ -35,10 +35,17 @@ private:
 	lv_obj_t* m_switch3;
 	lv_obj_t* m_arcLabel;
 
+	lv_obj_t* m_chart;
+	lv_chart_series_t* m_series1;
+	lv_chart_series_t* m_series2;
+
 	lv_meter_indicator_t* m_indic[3];
 
 	lv_timer_t* m_timer;
 
 	BoilerController* m_boilerController;
 	BoilerState m_lastState = BoilerState::Heating;
+
+	float m_currentTemp = 0.0f;
+	float m_currentPressure = 0.0f;
 };
