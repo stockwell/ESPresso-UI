@@ -46,68 +46,94 @@ EspressoSettingsTab::EspressoSettingsTab(lv_obj_t* parent)
 	lv_obj_set_flex_flow(m_parent, LV_FLEX_FLOW_ROW);
 
 	static lv_coord_t parent_grid_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-	static lv_coord_t parent_grid_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+	static lv_coord_t parent_grid_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 	lv_obj_set_grid_dsc_array(parent, parent_grid_col_dsc, parent_grid_row_dsc);
 
-	lv_obj_t* cont = lv_obj_create(parent);
-	lv_obj_set_size(cont, 760, 110);
+	lv_obj_t* boilerSettingsContainer = lv_obj_create(parent);
+	lv_obj_set_size(boilerSettingsContainer, 760, 110);
 
-	lv_obj_t* cont2 = lv_obj_create(parent);
-	lv_obj_set_size(cont2, 760, 65);
+	lv_obj_t* boilerPIDContainer = lv_obj_create(parent);
+	lv_obj_set_size(boilerPIDContainer, 760, 130);
 
-	lv_obj_t* boilerPID_container = lv_obj_create(parent);
-	lv_obj_set_size(boilerPID_container, 760, 130);
+	lv_obj_t* pumpSettingsContainer = lv_obj_create(parent);
+	lv_obj_set_size(pumpSettingsContainer, 760, 65);
 
-	lv_obj_set_grid_cell(cont,  LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 0, 1);
-	lv_obj_set_grid_cell(cont2, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 1, 1);
-	lv_obj_set_grid_cell(boilerPID_container, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 2, 1);
+	lv_obj_t* pumpPIDContainer = lv_obj_create(parent);
+	lv_obj_set_size(pumpPIDContainer, 760, 130);
+
+	lv_obj_set_grid_cell(boilerSettingsContainer,  LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 0, 1);
+	lv_obj_set_grid_cell(boilerPIDContainer, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 1, 1);
+	lv_obj_set_grid_cell(pumpSettingsContainer, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 2, 1);
+	lv_obj_set_grid_cell(pumpPIDContainer, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 3, 1);
 
 	auto& settings = SettingsManager::get();
 
 	// Temperature Settings Container
-	auto [slider1, sliderlabel] = createSlider(cont, "BrewTemp", {85, 100}, "%d°c");
-	auto [slider2, sliderlabel2] = createSlider(cont, "SteamTemp", {120, 150}, "%d°c");
+	auto [slider1, sliderlabel] = createSlider(boilerSettingsContainer, "BrewTemp", {85, 100}, "%d°c");
+	auto [slider2, sliderlabel2] = createSlider(boilerSettingsContainer, "SteamTemp", {120, 150}, "%d°c");
 
 	static lv_coord_t grid_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 	static lv_coord_t grid_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-	lv_obj_set_grid_dsc_array(cont, grid_col_dsc, grid_row_dsc);
+	lv_obj_set_grid_dsc_array(boilerSettingsContainer, grid_col_dsc, grid_row_dsc);
 
-	lv_obj_set_grid_cell(createLabel(cont, "Brew Temp."),  LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 0, 1);
+	lv_obj_set_grid_cell(createLabel(boilerSettingsContainer, "Brew Temp."),  LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 0, 1);
 	lv_obj_set_grid_cell(slider1, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 0, 1);
 	lv_obj_set_grid_cell(sliderlabel, LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
-	lv_obj_set_grid_cell(createLabel(cont, "Steam Temp."),  LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 2, 1);
+	lv_obj_set_grid_cell(createLabel(boilerSettingsContainer, "Steam Temp."),  LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 2, 1);
 	lv_obj_set_grid_cell(slider2, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 2, 1);
 	lv_obj_set_grid_cell(sliderlabel2, LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 2, 1);
 
-	// Pressure Settings Container
-	static lv_coord_t grid2_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-	static lv_coord_t grid2_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-	lv_obj_set_grid_dsc_array(cont2, grid2_col_dsc, grid2_row_dsc);
-
-	auto [slider3, sliderlabel3] = createSlider(cont2, "BrewPressure", {6, 12}, "%d bar");
-	lv_obj_set_grid_cell(createLabel(cont2, "Brew Pressure"),  LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 0, 1);
-	lv_obj_set_grid_cell(slider3, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 0, 1);
-	lv_obj_set_grid_cell(sliderlabel3, LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
 	// BoilerPID Container
 	static lv_coord_t boilerPID_grid_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 	static lv_coord_t boilerPID_grid_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
-	lv_obj_set_grid_dsc_array(boilerPID_container, boilerPID_grid_col_dsc, boilerPID_grid_row_dsc);
+	lv_obj_set_grid_dsc_array(boilerPIDContainer, boilerPID_grid_col_dsc, boilerPID_grid_row_dsc);
 
-	auto [slider4, sliderlabel4] = createSlider(boilerPID_container, "BoilerKp", {1, 500}, "%d");
-	lv_obj_set_grid_cell(createLabel(boilerPID_container, "Kp Term"),  LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 0, 1);
+	auto [slider4, sliderlabel4] = createSlider(boilerPIDContainer, "BoilerKp", {1, 500}, "%d");
+	lv_obj_set_grid_cell(createLabel(boilerPIDContainer, "Kp Term"),  LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 0, 1);
 	lv_obj_set_grid_cell(slider4, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 0, 1);
 	lv_obj_set_grid_cell(sliderlabel4, LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
 
-	auto [slider5, sliderlabel5] = createSlider(boilerPID_container, "BoilerKi", {1, 500}, "%d");
-	lv_obj_set_grid_cell(createLabel(boilerPID_container, "Ki Term"),  LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 1, 1);
+	auto [slider5, sliderlabel5] = createSlider(boilerPIDContainer, "BoilerKi", {1, 500}, "%d");
+	lv_obj_set_grid_cell(createLabel(boilerPIDContainer, "Ki Term"),  LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 1, 1);
 	lv_obj_set_grid_cell(slider5, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 1, 1);
 	lv_obj_set_grid_cell(sliderlabel5, LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 1, 1);
 
-	auto [slider6, sliderlabel6] = createSlider(boilerPID_container, "BoilerKd", {1, 500}, "%d");
-	lv_obj_set_grid_cell(createLabel(boilerPID_container, "Kd Term"),  LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 2, 1);
+	auto [slider6, sliderlabel6] = createSlider(boilerPIDContainer, "BoilerKd", {1, 500}, "%d");
+	lv_obj_set_grid_cell(createLabel(boilerPIDContainer, "Kd Term"),  LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 2, 1);
 	lv_obj_set_grid_cell(slider6, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 2, 1);
 	lv_obj_set_grid_cell(sliderlabel6, LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 2, 1);
+
+	// Pressure Settings Container
+	static lv_coord_t grid2_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+	static lv_coord_t grid2_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+	lv_obj_set_grid_dsc_array(pumpSettingsContainer, grid2_col_dsc, grid2_row_dsc);
+
+	auto [slider3, sliderlabel3] = createSlider(pumpSettingsContainer, "BrewPressure", {6, 12}, "%d bar");
+	lv_obj_set_grid_cell(createLabel(pumpSettingsContainer, "Brew Pressure"),  LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 0, 1);
+	lv_obj_set_grid_cell(slider3, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 0, 1);
+	lv_obj_set_grid_cell(sliderlabel3, LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+
+	// PumpPID Container
+	static lv_coord_t pumpPID_grid_col_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+	static lv_coord_t pumpPID_grid_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+
+	lv_obj_set_grid_dsc_array(pumpPIDContainer, pumpPID_grid_col_dsc, pumpPID_grid_row_dsc);
+
+	auto [pumpKpSlider, pumpKpLabel] = createSlider(pumpPIDContainer, "PumpKp", {1, 500}, "%d");
+	lv_obj_set_grid_cell(createLabel(pumpPIDContainer, "Kp Term"),  LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 0, 1);
+	lv_obj_set_grid_cell(pumpKpSlider, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 0, 1);
+	lv_obj_set_grid_cell(pumpKpLabel, LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+
+	auto [pumpKiSlider, pumpKiLabel] = createSlider(pumpPIDContainer, "PumpKi", {1, 500}, "%d");
+	lv_obj_set_grid_cell(createLabel(pumpPIDContainer, "Ki Term"),  LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 1, 1);
+	lv_obj_set_grid_cell(pumpKiSlider, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 1, 1);
+	lv_obj_set_grid_cell(pumpKiLabel, LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 1, 1);
+
+	auto [pumpKdSlider, pumpKdLabel] = createSlider(pumpPIDContainer, "PumpKd", {1, 500}, "%d");
+	lv_obj_set_grid_cell(createLabel(pumpPIDContainer, "Kd Term"),  LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 2, 1);
+	lv_obj_set_grid_cell(pumpKdSlider, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 2, 1);
+	lv_obj_set_grid_cell(pumpKdLabel, LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 2, 1);
 }
