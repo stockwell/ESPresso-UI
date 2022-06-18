@@ -24,7 +24,7 @@ namespace
 			lv_chart_set_next_value(chart1, series1, *temperature);
 
 		if (series2)
-			lv_chart_set_next_value(chart1, series2, *pressure);
+			lv_chart_set_next_value(chart1, series2, *pressure * 20);
 
 		if (! timerRunning)
 			return;
@@ -54,9 +54,6 @@ namespace
 		}
 
 		lv_label_set_text_fmt(label, "%u", *time / 1000);
-
-
-
 	}
 
 	struct ResetSwitchData
@@ -220,7 +217,7 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 	lv_meter_set_scale_range(m_meter2, scale3, 0, 400, 270, 135);
 
 	m_indic[indic_pressure] =
-		lv_meter_add_needle_line(m_meter2, scale3, 2, lv_palette_main(LV_PALETTE_RED), -10);
+		lv_meter_add_needle_line(m_meter2, scale3, 2, lv_palette_main(LV_PALETTE_BLUE), -10);
 
 	static lv_coord_t outer_grid_col_dsc[] =
 		{LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
@@ -235,15 +232,15 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 	lv_obj_set_size(m_chart, 370, 170);
 	lv_obj_align(m_chart, LV_ALIGN_CENTER, 0, 0);
 	lv_chart_set_range(m_chart, LV_CHART_AXIS_PRIMARY_Y, 50, 150);
-	lv_chart_set_range(m_chart, LV_CHART_AXIS_SECONDARY_Y, 0, 16);
-	lv_chart_set_point_count(m_chart, 300);
+	lv_chart_set_range(m_chart, LV_CHART_AXIS_SECONDARY_Y, 0, 16*20);
+	lv_chart_set_point_count(m_chart, 325);
 
 
-	lv_chart_set_axis_tick(m_chart, LV_CHART_AXIS_PRIMARY_X, 4, 2, 12, 3, true, 40);
-	lv_chart_set_axis_tick(m_chart, LV_CHART_AXIS_PRIMARY_Y, 4, 2, 6, 2, true, 50);
-	lv_chart_set_axis_tick(m_chart, LV_CHART_AXIS_SECONDARY_Y, 4, 2, 3, 4, true, 50);
+	lv_chart_set_axis_tick(m_chart, LV_CHART_AXIS_PRIMARY_X, 3, 2, 12, 3, true, 40);
+	lv_chart_set_axis_tick(m_chart, LV_CHART_AXIS_PRIMARY_Y, 3, 2, 6, 2, true, 50);
+	//lv_chart_set_axis_tick(m_chart, LV_CHART_AXIS_SECONDARY_Y, 4, 2, 3, 4, true, 50);
 
-	lv_obj_set_style_text_font(m_chart, &lv_font_montserrat_10, 0);
+	lv_obj_set_style_text_font(m_chart, &lv_font_montserrat_8, 0);
 
 	m_series1 = lv_chart_add_series(m_chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
 	m_series2 = lv_chart_add_series(m_chart, lv_palette_main(LV_PALETTE_BLUE), LV_CHART_AXIS_SECONDARY_Y);
@@ -280,7 +277,7 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 	lv_arc_set_bg_angles(arc, 0, 360);
 	lv_arc_set_angles(arc, 0, 0);
 	lv_arc_set_range(arc, 0, kArcMax);
-	lv_obj_remove_style(arc, NULL, LV_PART_KNOB);   /*Be sure the knob is not displayed*/
+	lv_obj_remove_style(arc, nullptr, LV_PART_KNOB);   /*Be sure the knob is not displayed*/
 	lv_obj_clear_flag(arc, LV_OBJ_FLAG_CLICKABLE);  /*To not allow adjusting by click*/
 	lv_obj_center(arc);
 	lv_obj_set_size(arc, 250, 250);
@@ -395,7 +392,6 @@ void EspressoBrewTab::onBoilerStateChanged(BoilerState state)
 		lv_obj_add_state(m_switch2, LV_STATE_CHECKED);
 		lv_obj_clear_state(m_switch3, LV_STATE_DISABLED);
 		break;
-
 	}
 
 	m_lastState = state;
