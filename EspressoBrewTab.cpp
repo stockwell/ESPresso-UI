@@ -334,8 +334,8 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 		.resetSwitch = m_switch3,
 		.arc = arc,
 		.chart = m_chart,
-		.chartPressureSeries = m_series1,
-		.chartTemperatureSeries = m_series2,
+		.chartPressureSeries = m_series2,
+		.chartTemperatureSeries = m_series1,
 		.log = &m_continuousLogger,
 		.shotLog = &m_shotLogger,
 	};
