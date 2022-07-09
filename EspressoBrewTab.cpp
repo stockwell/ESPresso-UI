@@ -11,50 +11,25 @@ namespace
 	constexpr int kArcMax = (1000 / kTimerPeriodMs) * kShotTimeSec + 1;
 	constexpr int kArcAngleIncrement = std::max(1, 360 / (kArcMax));
 
-	lv_chart_series_t* series1 = nullptr;
-	lv_chart_series_t* series2 = nullptr;
-	lv_obj_t* chart1 = nullptr;
-	float* pressure = nullptr;
-	float* temperature = nullptr;
-	bool timerRunning = false;
-
-	static void timer_cb(lv_timer_t* t)
+	struct TimerData
 	{
-		if (series1)
-			lv_chart_set_next_value(chart1, series1, *temperature);
+		bool* timerRunning;
 
-		if (series2)
-			lv_chart_set_next_value(chart1, series2, *pressure * 20);
+		float* pressure;
+		float* temperature;
 
-		if (! timerRunning)
-			return;
+		uint64_t* time;
 
-		auto [resetSwitch, arc, time] =
-			*static_cast<std::tuple<lv_obj_t*, lv_obj_t*, uint64_t*>*>(t->user_data);
+		lv_obj_t* resetSwitch;
+		lv_obj_t* arc;
+		lv_obj_t* chart;
 
-		(*time) += kTimerPeriodMs;
+		lv_chart_series_t* chartPressureSeries;
+		lv_chart_series_t* chartTemperatureSeries;
 
-		auto* label = lv_obj_get_child(arc, 0);
-
-		if (auto val = lv_arc_get_value(arc); val < kArcMax)
-		{
-			lv_arc_set_value(arc, val + 1);
-		}
-		else
-		{
-			if (auto angle = lv_arc_get_angle_start(arc) + kArcAngleIncrement; angle < 360)
-			{
-				lv_arc_set_start_angle(arc, angle);
-			}
-			else
-			{
-				lv_arc_set_value(arc, 0);
-				lv_arc_set_start_angle(arc, 0);
-			}
-		}
-
-		lv_label_set_text_fmt(label, "%u", *time / 1000);
-	}
+		Logging* log;
+		Logging* shotLog;
+	};
 
 	struct ResetSwitchData
 	{
@@ -63,6 +38,57 @@ namespace
 		lv_timer_t* timer;
 		uint64_t* time;
 	};
+
+	struct TimerSwitchData
+	{
+		bool* timerRunning;
+		lv_obj_t* switch1;
+
+		Logging* log;
+	};
+
+	static void timer_cb(lv_timer_t* t)
+	{
+		auto data = static_cast<TimerData*>(t->user_data);
+
+		auto dataPoint = std::make_pair(*data->temperature, *data->pressure * 20);
+
+		const auto& [temperature, pressure] = dataPoint;
+
+		lv_chart_set_next_value(data->chart, data->chartTemperatureSeries, temperature);
+		lv_chart_set_next_value(data->chart, data->chartPressureSeries, pressure);
+
+		data->log->AddData(dataPoint);
+
+		if (! *data->timerRunning)
+			return;
+
+		data->shotLog->AddData(dataPoint);
+
+		(*data->time) += kTimerPeriodMs;
+
+		auto* label = lv_obj_get_child(data->arc, 0);
+
+		if (auto val = lv_arc_get_value(data->arc); val < kArcMax)
+		{
+			lv_arc_set_value(data->arc, val + 1);
+		}
+		else
+		{
+			if (auto angle = lv_arc_get_angle_start(data->arc) + kArcAngleIncrement; angle < 360)
+			{
+				lv_arc_set_start_angle(data->arc, angle);
+			}
+			else
+			{
+				lv_arc_set_value(data->arc, 0);
+				lv_arc_set_start_angle(data->arc, 0);
+			}
+		}
+
+		lv_label_set_text_fmt(label, "%u", static_cast<uint>(*data->time / 1000));
+	}
+
 
 	static void reset_switch_event_cb(lv_event_t* e)
 	{
@@ -92,22 +118,27 @@ namespace
 		lv_obj_t* obj = lv_event_get_target(e);
 		lv_obj_t* label = lv_obj_get_child(obj, 0);
 
-		auto [switch1, timer] =
-			*static_cast<std::pair<lv_obj_t*, lv_timer_t*>*>(lv_event_get_user_data(e));
+		auto* data = static_cast<TimerSwitchData*>(lv_event_get_user_data(e));
 
 		if (lv_obj_has_state(obj, LV_STATE_CHECKED))
 		{
 			lv_label_set_text(label, "Stop");
 
-			if (lv_obj_get_state(switch1) == LV_STATE_DISABLED)
-				lv_obj_clear_state(switch1, LV_STATE_DISABLED);
+			if (lv_obj_get_state(data->switch1) == LV_STATE_DISABLED)
+				lv_obj_clear_state(data->switch1, LV_STATE_DISABLED);
 
-			timerRunning = true;
+			*data->timerRunning = true;
 		}
 		else
 		{
-			lv_label_set_text(label, "Start");
-			timerRunning = false;
+			if (*data->timerRunning)
+			{
+				lv_label_set_text(label, "Start");
+
+				*data->timerRunning = false;
+
+				data->log->FlushLog();
+			}
 		}
 	}
 
@@ -125,6 +156,8 @@ namespace
 }
 
 EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
+	: m_shotLogger(false, "shot")
+	, m_continuousLogger(true, "log")
 {
 	m_boilerController = boiler;
 	lv_obj_set_flex_flow(parent, LV_FLEX_FLOW_ROW_WRAP);
@@ -232,13 +265,11 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 	lv_obj_set_size(m_chart, 370, 170);
 	lv_obj_align(m_chart, LV_ALIGN_CENTER, 0, 0);
 	lv_chart_set_range(m_chart, LV_CHART_AXIS_PRIMARY_Y, 50, 150);
-	lv_chart_set_range(m_chart, LV_CHART_AXIS_SECONDARY_Y, 0, 16*20);
+	lv_chart_set_range(m_chart, LV_CHART_AXIS_SECONDARY_Y, 0, 14*20);
 	lv_chart_set_point_count(m_chart, 325);
-
 
 	lv_chart_set_axis_tick(m_chart, LV_CHART_AXIS_PRIMARY_X, 3, 2, 12, 3, true, 40);
 	lv_chart_set_axis_tick(m_chart, LV_CHART_AXIS_PRIMARY_Y, 3, 2, 6, 2, true, 50);
-	//lv_chart_set_axis_tick(m_chart, LV_CHART_AXIS_SECONDARY_Y, 4, 2, 3, 4, true, 50);
 
 	lv_obj_set_style_text_font(m_chart, &lv_font_montserrat_8, 0);
 
@@ -294,7 +325,21 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 	lv_obj_set_grid_cell(m_switch2, LV_GRID_ALIGN_CENTER, 0, 2, LV_GRID_ALIGN_CENTER, 1, 1);
 	lv_obj_set_grid_cell(m_switch3, LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_CENTER, 1, 1);
 
-	auto* timerData = new std::tuple<lv_obj_t*, lv_obj_t*, uint64_t*>(m_switch3, arc, &m_stopwatchTime);
+	auto timerData = new TimerData
+	{
+		.timerRunning = &m_timerRunning,
+		.pressure = &m_currentPressure,
+		.temperature = &m_currentTemp,
+		.time = &m_stopwatchTime,
+		.resetSwitch = m_switch3,
+		.arc = arc,
+		.chart = m_chart,
+		.chartPressureSeries = m_series1,
+		.chartTemperatureSeries = m_series2,
+		.log = &m_continuousLogger,
+		.shotLog = &m_shotLogger,
+	};
+
 	m_timer = lv_timer_create(timer_cb, kTimerPeriodMs, timerData);
 
 	auto* resetSwitchData = new ResetSwitchData
@@ -307,7 +352,13 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 
 	lv_obj_add_event_cb(m_switch3, reset_switch_event_cb, LV_EVENT_ALL, resetSwitchData);
 
-	auto* timerSwitchData = new std::pair<lv_obj_t*, lv_timer_t*>(m_switch3, m_timer);
+	auto* timerSwitchData = new TimerSwitchData
+	{
+		&m_timerRunning,
+		m_switch3,
+		&m_shotLogger
+	};
+
 	lv_obj_add_event_cb(m_switch2, timer_switch_event_cb, LV_EVENT_ALL, timerSwitchData);
 
 	static lv_coord_t cont_grid_col_dsc[] =
@@ -321,12 +372,6 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 	lv_obj_set_grid_cell(panel2, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 0, 2);
 
 	m_boilerController->registerBoilerTemperatureDelegate(this);
-
-	pressure = &m_currentPressure;
-	temperature = &m_currentTemp;
-	series1 = m_series1;
-	series2 = m_series2;
-	chart1 = m_chart;
 }
 
 void EspressoBrewTab::onBoilerTargetTempChanged(float temp)

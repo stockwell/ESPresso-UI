@@ -3,6 +3,7 @@
 #include "lvgl.h"
 
 #include "BoilerController.hpp"
+#include "Logging.hpp"
 
 class EspressoBrewTab
 	: public BoilerTemperatureDelegate
@@ -26,6 +27,8 @@ private:
 		indic_pressure
 	};
 
+	bool m_timerRunning = false;
+
 	uint64_t m_stopwatchTime = 0;
 	float m_targetTemp = 0.0f;
 
@@ -48,4 +51,7 @@ private:
 
 	float m_currentTemp = 0.0f;
 	float m_currentPressure = 0.0f;
+
+	Logging m_shotLogger;
+	Logging m_continuousLogger;
 };
