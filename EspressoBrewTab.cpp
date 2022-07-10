@@ -27,7 +27,6 @@ namespace
 		lv_chart_series_t* chartPressureSeries;
 		lv_chart_series_t* chartTemperatureSeries;
 
-		Logging* log;
 		Logging* shotLog;
 	};
 
@@ -57,8 +56,6 @@ namespace
 
 		lv_chart_set_next_value(data->chart, data->chartTemperatureSeries, temperature);
 		lv_chart_set_next_value(data->chart, data->chartPressureSeries, pressure);
-
-		data->log->AddData(dataPoint);
 
 		if (! *data->timerRunning)
 			return;
@@ -157,7 +154,6 @@ namespace
 
 EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 	: m_shotLogger(false, "shot")
-	, m_continuousLogger(true, "log")
 {
 	m_boilerController = boiler;
 	lv_obj_set_flex_flow(parent, LV_FLEX_FLOW_ROW_WRAP);
@@ -336,7 +332,6 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 		.chart = m_chart,
 		.chartPressureSeries = m_series2,
 		.chartTemperatureSeries = m_series1,
-		.log = &m_continuousLogger,
 		.shotLog = &m_shotLogger,
 	};
 

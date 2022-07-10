@@ -53,5 +53,4 @@ private:
 	float m_currentPressure = 0.0f;
 
 	Logging m_shotLogger;
-	Logging m_continuousLogger;
 };
