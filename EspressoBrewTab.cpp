@@ -415,6 +415,11 @@ void EspressoBrewTab::onBoilerStateChanged(BoilerState state)
 		lv_obj_add_state(m_switch2, LV_STATE_DISABLED);
 		break;
 
+	case BoilerState::Inhibited:
+		lv_label_set_text(m_arcLabel, "Inhibited");
+		lv_obj_add_state(m_switch2, LV_STATE_DISABLED);
+		break;
+
 	case BoilerState::Ready:
 
 		if (m_lastState != BoilerState::Brewing)
