@@ -3,10 +3,7 @@
 static void anim_text_opa_cb(void* var, int32_t v)
 {
 	auto label = static_cast<lv_obj_t*>(var);
-	lv_color_t colour;
-	colour.full = (((v & 0xF8) << 8) + ((v & 0xFC) << 3) + (v >> 3));
-
-	lv_obj_set_style_text_color(label, colour, LV_PART_MAIN);
+	lv_obj_set_style_text_opa(label, v, LV_PART_MAIN);
 }
 
 EspressoConnectionScreen::EspressoConnectionScreen(const std::string& hostname)
@@ -37,7 +34,7 @@ void EspressoConnectionScreen::init(const std::string& hostname)
 	lv_anim_t a;
 	lv_anim_init(&a);
 	lv_anim_set_var(&a, label);
-	lv_anim_set_values(&a, 0xFFFFFF, 0xFFFF20);
+	lv_anim_set_values(&a, 0xFF, 0x20);
 	lv_anim_set_time(&a, 3000);
 	lv_anim_set_playback_delay(&a, 100);
 	lv_anim_set_playback_time(&a, 1000);
