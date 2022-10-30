@@ -3,13 +3,15 @@
 #include "lvgl.h"
 
 #include "BoilerController.hpp"
+#include "ScalesController.hpp"
+
 #include "Logging.hpp"
 
 class EspressoBrewTab
 	: public BoilerTemperatureDelegate
 {
 public:
-	EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler);
+	EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler, ScalesController* scales);
 	virtual ~EspressoBrewTab() = default;
 
 	// BoilerTemperatureDelegate i/f
@@ -37,6 +39,8 @@ private:
 	lv_obj_t* m_switch2;
 	lv_obj_t* m_switch3;
 	lv_obj_t* m_arcLabel;
+	lv_obj_t* m_weightLabel;
+	lv_obj_t* m_pressureLabel;
 
 	lv_obj_t* m_chart;
 	lv_chart_series_t* m_series1;
@@ -51,6 +55,9 @@ private:
 
 	float m_currentTemp = 0.0f;
 	float m_currentPressure = 0.0f;
+
+	ScalesController* m_scalesController;
+	float m_weight = 0.0f;
 
 	Logging m_shotLogger;
 };
