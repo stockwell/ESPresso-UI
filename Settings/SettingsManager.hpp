@@ -92,7 +92,7 @@ public:
 		return m_settings[key];
 	}
 
-	void loadDefaults();
+	void loadDefaults(bool doSave = true);
 
 	// Must be implemented by SettingsManagerImpl
 	void save();

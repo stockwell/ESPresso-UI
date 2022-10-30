@@ -56,6 +56,8 @@ void SettingsManager::save()
 
 void SettingsManager::load()
 {
+	loadDefaults(false);
+
 	std::ifstream settingsFile(kSettingsPath);
 	nlohmann::json settingsJSON;
 
@@ -92,6 +94,5 @@ void SettingsManager::load()
 		printf("Error loading Settings.json, restoring defaults..\n");
 		printf("\t%s\n", e.what());
 		loadDefaults();
-		save();
 	}
 }

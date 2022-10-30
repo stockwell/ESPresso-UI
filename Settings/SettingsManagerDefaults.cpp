@@ -1,6 +1,6 @@
 #include "SettingsManager.hpp"
 
-void SettingsManager::loadDefaults()
+void SettingsManager::loadDefaults(bool doSave)
 {
 	m_settings["BrewTemp"] = 93.0f;
 	m_settings["SteamTemp"] = 145.0f;
@@ -14,5 +14,8 @@ void SettingsManager::loadDefaults()
 	m_settings["PumpKi"] = 1.0f;
 	m_settings["PumpKd"] = 1.0f;
 
-	save();
+	m_settings["ManualPumpControl"] = 0.0f;
+
+	if (doSave)
+		save();
 }
