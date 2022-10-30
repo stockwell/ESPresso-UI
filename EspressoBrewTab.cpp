@@ -150,11 +150,57 @@ namespace
 
 		return meter;
 	}
+
+	static void sliderCb(lv_event_t* e)
+	{
+		lv_obj_t* slider = lv_event_get_target(e);
+		auto [key, fmt] = *static_cast<std::pair<std::string, std::string>*>(lv_event_get_user_data(e));
+		auto val = lv_slider_get_value(slider);
+
+		auto& settings = SettingsManager::get();
+		settings[key] = static_cast<float>(val);
+		settings.save();
+	}
+
+	static lv_obj_t* createSlider(lv_obj_t* parent, const std::string& key, const std::pair<int, int>& range, const std::string& fmt)
+	{
+		auto slider = lv_slider_create(parent);
+		auto initial = SettingsManager::get()[key].getAs<float>();
+
+		lv_slider_set_range(slider, range.first, range.second);
+		lv_slider_set_value(slider, static_cast<int>(initial), LV_ANIM_OFF);
+		lv_obj_set_size(slider, 330, 15);
+		lv_obj_center(slider);
+
+		lv_obj_add_event_cb(slider, sliderCb, LV_EVENT_VALUE_CHANGED, new std::pair<std::string, std::string>(key, fmt));
+
+		return slider;
+	}
+
+	static lv_group_t* g;
+
+	void lv_group_init(void)
+	{
+		g = lv_group_create();
+
+		lv_indev_t* cur_drv = nullptr;
+		for (;;)
+		{
+			cur_drv = lv_indev_get_next(cur_drv);
+			if (! cur_drv)
+				break;
+
+			if (cur_drv->driver->type == LV_INDEV_TYPE_KEYPAD)
+				lv_indev_set_group(cur_drv, g);
+		}
+	}
 }
 
 EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 	: m_shotLogger(false, "shot")
 {
+	lv_group_init();
+
 	m_boilerController = boiler;
 	lv_obj_set_flex_flow(parent, LV_FLEX_FLOW_ROW_WRAP);
 
@@ -274,8 +320,8 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 
 	// Panel 2 - Timer and brew/steam setting
 	lv_obj_t* panel2 = lv_obj_create(parent);
-	lv_obj_set_size(panel2, 370, 360);
-	lv_obj_set_style_pad_row(panel2, 13, 0);
+	lv_obj_set_size(panel2, 370, 300);
+	lv_obj_set_style_pad_all(panel2, 0, LV_PART_MAIN);
 
 	m_switch2 = lv_btn_create(panel2);
 	lv_obj_align(m_switch2, LV_ALIGN_CENTER, 0, 0);
@@ -307,19 +353,14 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 	lv_obj_remove_style(arc, nullptr, LV_PART_KNOB);   /*Be sure the knob is not displayed*/
 	lv_obj_clear_flag(arc, LV_OBJ_FLAG_CLICKABLE);  /*To not allow adjusting by click*/
 	lv_obj_center(arc);
-	lv_obj_set_size(arc, 250, 250);
+	lv_obj_set_size(arc, 200, 200);
 
 	m_arcLabel = lv_label_create(arc);
 	lv_label_set_text(m_arcLabel, "Heating");
 	lv_obj_center(m_arcLabel);
 	lv_obj_set_style_text_font(m_arcLabel, &lv_font_montserrat_28, 0);
 
-	static lv_coord_t grid_col_dsc[] = {40, 120, 120, LV_GRID_TEMPLATE_LAST};
-	static lv_coord_t grid_row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
-	lv_obj_set_grid_dsc_array(panel2, grid_col_dsc, grid_row_dsc);
-	lv_obj_set_grid_cell(arc, LV_GRID_ALIGN_END, 0, 3, LV_GRID_ALIGN_CENTER, 0, 1);
-	lv_obj_set_grid_cell(m_switch2, LV_GRID_ALIGN_CENTER, 0, 2, LV_GRID_ALIGN_CENTER, 1, 1);
-	lv_obj_set_grid_cell(m_switch3, LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_CENTER, 1, 1);
+	lv_obj_align(arc, LV_ALIGN_TOP_MID, 0, 20);
 
 	auto timerData = new TimerData
 	{
@@ -356,6 +397,17 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 
 	lv_obj_add_event_cb(m_switch2, timer_switch_event_cb, LV_EVENT_ALL, timerSwitchData);
 
+	lv_obj_align(m_switch2, LV_ALIGN_BOTTOM_MID, -70, -20);
+	lv_obj_align(m_switch3, LV_ALIGN_BOTTOM_MID, 70, -20);
+
+	lv_obj_t* panel3 = lv_obj_create(parent);
+	lv_obj_set_size(panel3, 370, 50);
+	lv_obj_set_style_pad_all(panel3, 0, LV_PART_MAIN);
+
+	auto slider = createSlider(panel3, "ManualPumpControl", {1, 100}, "%d%%");
+
+	lv_group_add_obj(g, slider);
+
 	static lv_coord_t cont_grid_col_dsc[] =
 		{LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 	static lv_coord_t cont_grid_row_dsc[] =
@@ -365,6 +417,7 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler)
 	lv_obj_set_grid_cell(cont, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 0, 1);
 	lv_obj_set_grid_cell(m_chart, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 1, 1);
 	lv_obj_set_grid_cell(panel2, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 0, 2);
+	lv_obj_set_grid_cell(panel3, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_END, 0, 2);
 
 	m_boilerController->registerBoilerTemperatureDelegate(this);
 }
@@ -417,6 +470,11 @@ void EspressoBrewTab::onBoilerStateChanged(BoilerState state)
 
 	case BoilerState::Inhibited:
 		lv_label_set_text(m_arcLabel, "Inhibited");
+		lv_obj_add_state(m_switch2, LV_STATE_DISABLED);
+		break;
+
+	case BoilerState::Idle:
+		lv_label_set_text(m_arcLabel, "Idle");
 		lv_obj_add_state(m_switch2, LV_STATE_DISABLED);
 		break;
 
