@@ -9,6 +9,7 @@
 
 class EspressoBrewTab
 	: public BoilerTemperatureDelegate
+	, public ScalesWeightDelegate
 {
 public:
 	EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler, ScalesController* scales);
@@ -18,8 +19,10 @@ public:
 	void onBoilerCurrentTempChanged(float temp) override;
 	void onBoilerTargetTempChanged(float temp) override;
 	void onBoilerStateChanged(BoilerState state) override;
-
 	void onBoilerPressureChanged(float pressure) override;
+
+	// ScalesWeightDelegate i/f
+	void onScalesWeightChanged(float weight) override;
 
 private:
 	enum

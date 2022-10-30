@@ -1,6 +1,6 @@
 #include "EspressoUI.hpp"
 
-void EspressoUI::init(BoilerController* boiler)
+void EspressoUI::init(BoilerController* boiler, ScalesController* scales)
 {
 	DisplaySize disp_size = DisplaySize::Large;
 
@@ -66,6 +66,6 @@ void EspressoUI::init(BoilerController* boiler)
 
 	lv_obj_set_style_text_font(tv, font_large, 0);
 
-	m_brewTab = std::make_unique<EspressoBrewTab>(t1, boiler);
+	m_brewTab = std::make_unique<EspressoBrewTab>(t1, boiler, scales);
 	m_settingsTab = std::make_unique<EspressoSettingsTab>(t2);
 }

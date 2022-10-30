@@ -436,6 +436,7 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler, Sca
 	lv_obj_set_grid_cell(panel3, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 2, 1);
 	lv_obj_set_grid_cell(panel4, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 3, 1);
 
+	m_scalesController->registerWeightDelegate(this);
 	m_boilerController->registerBoilerTemperatureDelegate(this);
 }
 
@@ -472,6 +473,8 @@ void EspressoBrewTab::onBoilerPressureChanged(float pressure)
 
 	lv_obj_t* label = lv_obj_get_child(m_meter2, -1);
 	lv_label_set_text_fmt(label, "%.01f bar", pressure);
+
+	lv_label_set_text_fmt(m_pressureLabel, "%.01f bar", pressure);
 
 	m_currentPressure = pressure;
 }
@@ -515,4 +518,9 @@ void EspressoBrewTab::onBoilerStateChanged(BoilerState state)
 	}
 
 	m_lastState = state;
+}
+
+void EspressoBrewTab::onScalesWeightChanged(float weight)
+{
+	lv_label_set_text_fmt(m_weightLabel, "%0.02fg", weight);
 }

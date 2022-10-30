@@ -5,6 +5,7 @@
 #include "lvgl.h"
 
 #include "BoilerController.hpp"
+#include "ScalesController.hpp"
 #include "EspressoBrewTab.hpp"
 #include "EspressoSettingsTab.hpp"
 
@@ -14,7 +15,7 @@ public:
 	EspressoUI() = default;
 	~EspressoUI() = default;
 
-	void init(BoilerController* boiler);
+	void init(BoilerController* boiler, ScalesController* scales);
 
 private:
 	enum class DisplaySize
