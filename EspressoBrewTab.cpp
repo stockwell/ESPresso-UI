@@ -406,7 +406,7 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler, Sca
 	lv_obj_set_style_pad_all(panel3, 0, LV_PART_MAIN);
 
 	m_weightLabel = lv_label_create(panel3);
-	lv_label_set_text(m_weightLabel, "0.00g");
+	lv_label_set_text(m_weightLabel, "---");
 	lv_obj_align(m_weightLabel, LV_ALIGN_CENTER, -80, 0);
 	lv_obj_set_style_text_font(m_weightLabel, &lv_font_montserrat_30, 0);
 
@@ -522,5 +522,8 @@ void EspressoBrewTab::onBoilerStateChanged(BoilerState state)
 
 void EspressoBrewTab::onScalesWeightChanged(float weight)
 {
-	lv_label_set_text_fmt(m_weightLabel, "%0.02fg", weight);
+	if (weight == -999.9f)
+		lv_label_set_text(m_weightLabel, "---");
+	else
+		lv_label_set_text_fmt(m_weightLabel, "%0.01fg", weight);
 }
