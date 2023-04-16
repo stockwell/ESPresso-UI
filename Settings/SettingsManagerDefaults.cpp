@@ -15,6 +15,7 @@ void SettingsManager::loadDefaults(bool doSave)
 	m_settings["PumpKd"] = 1.0f;
 
 	m_settings["ManualPumpControl"] = 0.0f;
+	m_settings["ManualPumpControlEnabled"] = false;
 
 	if (doSave)
 		save();
