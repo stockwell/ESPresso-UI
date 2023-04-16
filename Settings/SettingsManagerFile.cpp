@@ -27,6 +27,7 @@ void SettingsManager::save()
 				{"Type", value.get().index()},
 				{"Value", value.getAs<bool>()},
 			};
+			break;
 
 		case 1:
 			settingsJSON[key] = {
