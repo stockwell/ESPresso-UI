@@ -151,24 +151,13 @@ namespace
 		return meter;
 	}
 
-	static void sliderCb(lv_event_t* e)
-	{
-		lv_obj_t* slider = lv_event_get_target(e);
-		auto [key, fmt] = *static_cast<std::pair<std::string, std::string>*>(lv_event_get_user_data(e));
-		auto val = lv_slider_get_value(slider);
-
-		auto& settings = SettingsManager::get();
-		settings[key] = static_cast<float>(val*3);
-		settings.save();
-	}
-
 	void lvgl_event_callback(lv_event_t* e)
 	{
 		auto tab = static_cast<EspressoBrewTab*>(lv_event_get_user_data(e));
 		tab->lvglEventAdapter(e);
 	}
 
-	static lv_obj_t* createSlider(lv_obj_t* parent, const std::string& key, const std::pair<int, int>& range, const std::string& fmt)
+	static lv_obj_t* createSlider(lv_obj_t* parent, const std::string& key, const std::pair<int, int>& range)
 	{
 		auto slider = lv_slider_create(parent);
 		auto initial = SettingsManager::get()[key].getAs<float>();
@@ -177,8 +166,6 @@ namespace
 		lv_slider_set_value(slider, static_cast<int>(initial), LV_ANIM_OFF);
 		lv_obj_set_size(slider, 330, 15);
 		lv_obj_center(slider);
-
-		lv_obj_add_event_cb(slider, sliderCb, LV_EVENT_VALUE_CHANGED, new std::pair<std::string, std::string>(key, fmt));
 
 		return slider;
 	}
@@ -425,9 +412,10 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler, Sca
 	lv_obj_set_size(panel4, 370, 60);
 	lv_obj_set_style_pad_all(panel4, 0, LV_PART_MAIN);
 
-	auto slider = createSlider(panel4, "ManualPumpControl", {1, 100}, "%d%%");
-	lv_obj_set_size(slider, 200, 15);
-	lv_obj_align(slider, LV_ALIGN_RIGHT_MID, -20, 0);
+	m_slider = createSlider(panel4, "ManualPumpControl", {1, 100});
+	lv_obj_set_size(m_slider, 200, 15);
+	lv_obj_align(m_slider, LV_ALIGN_RIGHT_MID, -20, 0);
+	lv_obj_add_event_cb(m_slider, lvgl_event_callback, LV_EVENT_VALUE_CHANGED, (void*)this);
 
 	m_manualControlBtn = lv_btn_create(panel4);
 	lv_obj_align(m_manualControlBtn, LV_ALIGN_LEFT_MID, 20, 0);
@@ -438,12 +426,10 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler, Sca
 	lv_label_set_text(manualControlBtnLabel, "Manual");
 	lv_obj_set_style_text_font(manualControlBtnLabel, &lv_font_montserrat_18, 0);
 	lv_obj_center(manualControlBtnLabel);
-
-	lv_group_add_obj(g, slider);
-	lv_obj_add_flag(slider, LV_OBJ_FLAG_CHECKABLE);
-
 	lv_obj_add_event_cb(m_manualControlBtn, lvgl_event_callback, LV_EVENT_ALL, (void*)this);
-	lv_group_add_obj(g, m_manualControlBtn);
+
+	lv_group_add_obj(g, m_slider);
+	lv_obj_add_flag(m_slider, LV_OBJ_FLAG_CHECKABLE);
 
 	static lv_coord_t cont_grid_col_dsc[] =
 		{LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
@@ -555,28 +541,45 @@ void EspressoBrewTab::lvglEventAdapter(lv_event_t* e)
 
 	if (obj == m_manualControlBtn)
 		manualControlBtnEvent(e);
+	else if(obj == m_slider)
+		manualControlSliderEvent(e);
+}
+
+void EspressoBrewTab::manualControlSliderEvent(lv_event_t* e)
+{
+	if (e->code != LV_EVENT_VALUE_CHANGED)
+		return;
+
+	auto val = lv_slider_get_value(m_slider);
+
+	lv_obj_add_state(m_manualControlBtn, LV_STATE_CHECKED);
+
+	auto& settings = SettingsManager::get();
+	settings["ManualPumpControlEnabled"] = true;
+	settings["ManualPumpControl"] = static_cast<float>(val*3);
+	settings.save();
 }
 
 void EspressoBrewTab::manualControlBtnEvent(lv_event_t* e)
 {
-	if (e->code != LV_EVENT_RELEASED)
+	if (e->code != LV_EVENT_RELEASED && e->code != LV_EVENT_VALUE_CHANGED)
 		return;
 
 	lv_obj_t* label = lv_obj_get_child(m_manualControlBtn, 0);
+
 	bool manualControl = false;
 
 	if (lv_obj_has_state(m_manualControlBtn, LV_STATE_CHECKED))
 	{
-		lv_label_set_text(lv_obj_get_child(m_manualControlBtn, 0), "Auto");
+		lv_label_set_text(label, "Manual");
+		manualControl = true;
 	}
 	else
 	{
-		lv_label_set_text(lv_obj_get_child(m_manualControlBtn, 0), "Manual");
-		manualControl = true;
+		lv_label_set_text(label, "Auto");
 	}
 
 	auto& settings = SettingsManager::get();
 	settings["ManualPumpControlEnabled"] = manualControl;
 	settings.save();
-
 }

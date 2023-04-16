@@ -28,6 +28,7 @@ public:
 
 private:
 	void manualControlBtnEvent(lv_event_t* e);
+	void manualControlSliderEvent(lv_event_t* e);
 
 private:
 	enum
@@ -50,6 +51,7 @@ private:
 	lv_obj_t* m_weightLabel;
 	lv_obj_t* m_pressureLabel;
 	lv_obj_t* m_manualControlBtn;
+	lv_obj_t* m_slider;
 
 	lv_obj_t* m_chart;
 	lv_chart_series_t* m_series1;
