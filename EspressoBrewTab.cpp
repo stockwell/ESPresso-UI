@@ -158,7 +158,7 @@ namespace
 		auto val = lv_slider_get_value(slider);
 
 		auto& settings = SettingsManager::get();
-		settings[key] = static_cast<float>(val*6);
+		settings[key] = static_cast<float>(val*3);
 		settings.save();
 	}
 
@@ -167,7 +167,7 @@ namespace
 		auto slider = lv_slider_create(parent);
 		auto initial = SettingsManager::get()[key].getAs<float>();
 
-		lv_slider_set_range(slider, range.first, range.second/6);
+		lv_slider_set_range(slider, range.first, range.second/3);
 		lv_slider_set_value(slider, static_cast<int>(initial), LV_ANIM_OFF);
 		lv_obj_set_size(slider, 330, 15);
 		lv_obj_center(slider);
