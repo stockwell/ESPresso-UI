@@ -16,6 +16,7 @@ void SettingsManager::loadDefaults(bool doSave)
 
 	m_settings["ManualPumpControl"] = 0.0f;
 	m_settings["ManualPumpControlEnabled"] = false;
+	m_settings["HotWaterModeEnabled"] = false;
 
 	if (doSave)
 		save();

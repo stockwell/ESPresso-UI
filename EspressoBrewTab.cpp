@@ -412,24 +412,16 @@ EspressoBrewTab::EspressoBrewTab(lv_obj_t* parent, BoilerController* boiler, Sca
 	lv_obj_set_size(panel4, 370, 60);
 	lv_obj_set_style_pad_all(panel4, 0, LV_PART_MAIN);
 
-	m_slider = createSlider(panel4, "ManualPumpControl", {1, 100});
-	lv_obj_set_size(m_slider, 200, 15);
-	lv_obj_align(m_slider, LV_ALIGN_RIGHT_MID, -20, 0);
-	lv_obj_add_event_cb(m_slider, lvgl_event_callback, LV_EVENT_VALUE_CHANGED, (void*)this);
+	m_hotWaterButton = lv_btn_create(panel4);
+	lv_obj_align(m_hotWaterButton, LV_ALIGN_CENTER, 0, 0);
+	lv_obj_add_flag(m_hotWaterButton, LV_OBJ_FLAG_CHECKABLE);
+	lv_obj_set_height(m_hotWaterButton, LV_SIZE_CONTENT);
 
-	m_manualControlBtn = lv_btn_create(panel4);
-	lv_obj_align(m_manualControlBtn, LV_ALIGN_LEFT_MID, 20, 0);
-	lv_obj_add_flag(m_manualControlBtn, LV_OBJ_FLAG_CHECKABLE);
-	lv_obj_set_height(m_manualControlBtn, LV_SIZE_CONTENT);
-
-	auto manualControlBtnLabel = lv_label_create(m_manualControlBtn);
-	lv_label_set_text(manualControlBtnLabel, "Manual");
+	auto manualControlBtnLabel = lv_label_create(m_hotWaterButton);
+	lv_label_set_text(manualControlBtnLabel, "Hot Water");
 	lv_obj_set_style_text_font(manualControlBtnLabel, &lv_font_montserrat_18, 0);
 	lv_obj_center(manualControlBtnLabel);
-	lv_obj_add_event_cb(m_manualControlBtn, lvgl_event_callback, LV_EVENT_ALL, (void*)this);
-
-	lv_group_add_obj(g, m_slider);
-	lv_obj_add_flag(m_slider, LV_OBJ_FLAG_CHECKABLE);
+	lv_obj_add_event_cb(m_hotWaterButton, lvgl_event_callback, LV_EVENT_ALL, (void*)this);
 
 	static lv_coord_t cont_grid_col_dsc[] =
 		{LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
@@ -539,47 +531,18 @@ void EspressoBrewTab::lvglEventAdapter(lv_event_t* e)
 {
 	auto* obj = lv_event_get_target(e);
 
-	if (obj == m_manualControlBtn)
-		manualControlBtnEvent(e);
-	else if(obj == m_slider)
-		manualControlSliderEvent(e);
+	if (obj == m_hotWaterButton)
+		hotWaterButtonEvent(e);
 }
 
-void EspressoBrewTab::manualControlSliderEvent(lv_event_t* e)
+void EspressoBrewTab::hotWaterButtonEvent(lv_event_t* e)
 {
 	if (e->code != LV_EVENT_VALUE_CHANGED)
 		return;
 
-	auto val = lv_slider_get_value(m_slider);
-
-	lv_obj_add_state(m_manualControlBtn, LV_STATE_CHECKED);
+	const auto hotWaterEnabled = lv_obj_has_state(m_hotWaterButton, LV_STATE_CHECKED);
 
 	auto& settings = SettingsManager::get();
-	settings["ManualPumpControlEnabled"] = true;
-	settings["ManualPumpControl"] = static_cast<float>(val*3);
-	settings.save();
-}
-
-void EspressoBrewTab::manualControlBtnEvent(lv_event_t* e)
-{
-	if (e->code != LV_EVENT_RELEASED && e->code != LV_EVENT_VALUE_CHANGED)
-		return;
-
-	lv_obj_t* label = lv_obj_get_child(m_manualControlBtn, 0);
-
-	bool manualControl = false;
-
-	if (lv_obj_has_state(m_manualControlBtn, LV_STATE_CHECKED))
-	{
-		lv_label_set_text(label, "Manual");
-		manualControl = true;
-	}
-	else
-	{
-		lv_label_set_text(label, "Auto");
-	}
-
-	auto& settings = SettingsManager::get();
-	settings["ManualPumpControlEnabled"] = manualControl;
+	settings["HotWaterModeEnabled"] = hotWaterEnabled;
 	settings.save();
 }
